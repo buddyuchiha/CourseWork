@@ -573,6 +573,10 @@ namespace TreeHashTable {
 
     template<typename K, typename T>
     void HashTableTree<K, T>::insert_or_assign(K key, T value) {
+        if (rehashing_enabled && _count >= _size * 0.75) {
+            rehash();
+        }
+
         size_t index = hash_function(key) % _size;
         AVLNode<K, T>* node = search(_data[index], key);
         if (node) {

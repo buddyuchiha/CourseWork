@@ -5,59 +5,76 @@
 #include "..\algorithm\hash_functions.h"
 
 using namespace std;
+using namespace LinearHashTable;
+using namespace DoubleHashTable;
 using namespace CuckooHashTable;
+using namespace ListHashTable;
+using namespace TreeHashTable;
 
 int main() {
-    // Для строк: используем специализированные хеш-функции для string
-    HashTableCuckoo<string, int> table_str(10, city_hash, sdbm_hash);
+    // Тест 1: создание и вывод хеш-таблицы
+    cout << "Тест 1: Создание и вывод хеш-таблицы" << endl;
+    HashTableList<int, string> table(10);
+    table.insert(1, "Value1");
+    table.insert(2, "Value2");
+    table.insert(3, "Value3");
+    table.print(); // Ожидаем, что будут выведены данные
 
-    // Вставка строковых данных
-    table_str.insert("apple", 100);
-    table_str.insert("banana", 200);
-    table_str.insert("cherry", 300);
-
-    // Печать таблицы
-    table_str.print();
-    cout << endl;
-
-    // Поиск по строковому ключу
-    string key = "banana";
-    int* value = table_str.search(key);
-    if (value) {
-        cout << "Found " << key << " with value: " << *value << endl;
+    // Тест 2: поиск значений по ключу
+    cout << "Тест 2: Поиск значений по ключу" << endl;
+    string* val = table.search(2);
+    if (val) {
+        cout << "Найдено значение для ключа 2: " << *val << endl;
     }
     else {
-        cout << key << " not found." << endl;
+        cout << "Значение для ключа 2 не найдено." << endl;
     }
 
-    // Удаление строки
-    table_str.erase("banana");
-    table_str.print();
+    // Тест 3: вставка или обновление значения по ключу
+    cout << "Тест 3: Вставка или обновление значения по ключу" << endl;
+    table.insert_or_assign(3, "UpdatedValue3"); // Обновим значение для ключа 3
+    table.insert_or_assign(4, "Value4"); // Вставим новое значение
+    table.print(); // Ожидаем, что значение для ключа 3 будет обновлено
 
-    // Для целых чисел: используем одну хеш-функцию для int
-    HashTableCuckoo<int, int> table_int(10,base_hash_function, base_hash_function<int>);
-
-    // Вставка данных типа int
-    table_int.insert(1, 100);
-    table_int.insert(2, 200);
-    table_int.insert(3, 300);
-
-    // Печать таблицы
-    table_int.print();
-    cout << endl;
-
-    // Поиск по ключу int
-    int* value_int = table_int.search(2);
-    if (value_int) {
-        cout << "Found 2 with value: " << *value_int << endl;
+    // Тест 4: удаление элемента
+    cout << "Тест 4: Удаление элемента" << endl;
+    bool erased = table.erase(2);
+    if (erased) {
+        cout << "Элемент с ключом 2 был удален." << endl;
     }
     else {
-        cout << "Not found 2." << endl;
+        cout << "Не удалось удалить элемент с ключом 2." << endl;
+    }
+    table.print(); // После удаления ключа 2 его не должно быть в таблице
+
+    // Тест 5: проверка на наличие значения
+    cout << "Тест 5: Проверка на наличие значения" << endl;
+    bool contains = table.contains("Value4");
+    if (contains) {
+        cout << "Таблица содержит значение 'Value4'." << endl;
+    }
+    else {
+        cout << "Таблица не содержит значение 'Value4'." << endl;
     }
 
-    // Удаление элемента
-    table_int.erase(2);
-    table_int.print();
+    // Тест 6: подсчет элементов с данным ключом
+    cout << "Тест 6: Подсчет элементов с данным ключом" << endl;
+    int count = table.count(3);
+    cout << "Количество элементов с ключом 3: " << count << endl;
+
+    // Тест 7: проверка на вкл/выкл рехеширования
+    cout << "Тест 7: Включение и выключение рехеширования" << endl;
+    table.enable_rehashing();
+    table.insert(5, "Value5"); // При необходимости рехеширование должно произойти
+    table.disable_rehashing();
+    table.insert(6, "Value6"); // Рехеширование больше не происходит
+    table.print();
+
+    // Тест 8: копирование хеш-таблицы
+    cout << "Тест 8: Копирование хеш-таблицы" << endl;
+    HashTableList<int, string> copied_table = table;
+    copied_table.print(); // Ожидаем, что таблица будет скопирована корректно
 
     return 0;
 }
+

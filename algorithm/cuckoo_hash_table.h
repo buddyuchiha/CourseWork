@@ -3,6 +3,7 @@
 #include "..\algorithm\hash_functions.h"
 
 using namespace std;
+
 namespace CuckooHashTable {
 
     template <typename K, typename T>
@@ -15,7 +16,7 @@ namespace CuckooHashTable {
         size_t(*hash_function_1)(K);
         size_t(*hash_function_2)(K);
 
-        void insert_cuckoo(K key, T value, int table_id);
+        void insert_cuckoo(K key, T value, int table_id, int depth = 0);
 
     public:
         HashTableCuckoo(size_t size, size_t(*hash1)(K), size_t(*hash2)(K));
@@ -33,10 +34,10 @@ namespace CuckooHashTable {
     template <typename K, typename T>
     HashTableCuckoo<K, T>::HashTableCuckoo(size_t size, size_t(*hash1)(K), size_t(*hash2)(K))
         : _size1(size), _size2(size), hash_function_1(hash1), hash_function_2(hash2), _count1(0), _count2(0) {
-        _keys1.resize(_size1);
-        _values1.resize(_size1);
-        _keys2.resize(_size2);
-        _values2.resize(_size2);
+        _keys1.resize(_size1, K());
+        _values1.resize(_size1, T());
+        _keys2.resize(_size2, K());
+        _values2.resize(_size2, T());
     }
 
     template <typename K, typename T>
@@ -45,33 +46,47 @@ namespace CuckooHashTable {
     }
 
     template <typename K, typename T>
-    void HashTableCuckoo<K, T>::insert_cuckoo(K key, T value, int table_id) {
+    void HashTableCuckoo<K, T>::insert_cuckoo(K key, T value, int table_id, int depth) {
+        if (depth > _size1 + _size2) {  // Предотвращение бесконечной рекурсии
+            throw runtime_error("Cuckoo hashing exceeded maximum depth. Consider implementing rehash.");
+        }
+
         size_t index;
         if (table_id == 1) {
             index = hash_function_1(key) % _size1;
-            if (_keys1[index] == key) {
+            if (_keys1[index] == key) {  // Если ключ уже существует, обновляем значение
                 _values1[index] = value;
                 return;
+            }
+            if (_keys1[index] == K()) {  // Если слот пуст, увеличиваем счетчик
+                _count1++;
             }
             K evicted_key = _keys1[index];
             T evicted_value = _values1[index];
             _keys1[index] = key;
             _values1[index] = value;
 
-            insert_cuckoo(evicted_key, evicted_value, 2);
+            if (evicted_key != K()) {  // Если вытесняем ключ, продолжаем вставку в другую таблицу
+                insert_cuckoo(evicted_key, evicted_value, 2, depth + 1);
+            }
         }
         else {
             index = hash_function_2(key) % _size2;
-            if (_keys2[index] == key) {
+            if (_keys2[index] == key) {  // Если ключ уже существует, обновляем значение
                 _values2[index] = value;
                 return;
+            }
+            if (_keys2[index] == K()) {  // Если слот пуст, увеличиваем счетчик
+                _count2++;
             }
             K evicted_key = _keys2[index];
             T evicted_value = _values2[index];
             _keys2[index] = key;
             _values2[index] = value;
 
-            insert_cuckoo(evicted_key, evicted_value, 1);
+            if (evicted_key != K()) {  // Если вытесняем ключ, продолжаем вставку в первую таблицу
+                insert_cuckoo(evicted_key, evicted_value, 1, depth + 1);
+            }
         }
     }
 
@@ -95,6 +110,7 @@ namespace CuckooHashTable {
         size_t index = hash_function_1(key) % _size1;
         if (_keys1[index] == key) {
             _keys1[index] = K();
+            _values1[index] = T();
             _count1--;
             return true;
         }
@@ -102,6 +118,7 @@ namespace CuckooHashTable {
         index = hash_function_2(key) % _size2;
         if (_keys2[index] == key) {
             _keys2[index] = K();
+            _values2[index] = T();
             _count2--;
             return true;
         }

@@ -32,7 +32,7 @@ namespace LinearHashTable {
 
         void insert(K key, T value);
         void insert_or_assign(K key, T value);
-        bool contains(T value);
+        bool contains(K key);
         size_t get_count();
         T* search(K key);
         bool erase(K key);
@@ -103,12 +103,17 @@ namespace LinearHashTable {
     }
 
     template <typename K, typename T>
-    bool HashTableLinear<K, T>::contains(T value) {
-        for (size_t i = 0; i < _size; i++) {
-            if (_data[i]._filled && _data[i]._value == value) {
+    bool HashTableLinear<K, T>::contains(K key) {
+        size_t index = hash_function(key) % _size;
+        size_t i = 0;
+
+        while (_data[(index + i) % _size]._filled) {
+            if (_data[(index + i) % _size]._key == key) {
                 return true;
             }
+            i++;
         }
+
         return false;
     }
 
