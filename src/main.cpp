@@ -1,5 +1,6 @@
 #include <iostream>
 #include "..\algorithm\algorithm.h"
+#include "..\algorithm\hash_functions.h"
 
 using namespace std;
 using namespace algorithm;
@@ -14,88 +15,58 @@ int task(int experiments, int size) {
 	return sum;
 }
 
+void test_hash_functionality() {
+    cout << "=== Testing Hash Table with Various Hash Functions ===\n";
+
+
+    cout << "\n1. Base Hash Function\n";
+    HashTable<int, int> base_table(10, base_hash_function<int>);
+    base_table.insert(1, 100);
+    base_table.insert(2, 200);
+    base_table.insert(3, 300);
+    base_table.print();
+
+    cout << "\n2. Murmur Hash Function\n";
+    HashTable<int, int> murmur_table(10, murmur_hash<int>);
+    murmur_table.insert(1, 100);
+    murmur_table.insert(2, 200);
+    murmur_table.insert(3, 300);
+    murmur_table.print();
+
+    cout << "\n3. FNV-1a Hash Function\n";
+    HashTable<int, int> fnv_table(10, fnv1a_hash<int>);
+    fnv_table.insert(1, 100);
+    fnv_table.insert(2, 200);
+    fnv_table.insert(3, 300);
+    fnv_table.print();
+
+    cout << "=== Testing Hash Table with String Hash Functions ===\n";
+
+    cout << "\n1. SDBM Hash Function\n";
+    HashTable<string, string> sdbm_table(10, sdbm_hash<string>);
+    sdbm_table.insert("apple", "fruit");
+    sdbm_table.insert("car", "vehicle");
+    sdbm_table.insert("house", "building");
+    sdbm_table.print();
+
+    cout << "\n2. DJB2 Hash Function\n";
+    HashTable<string, string> djb2_table(10, djb2_hash<string>);
+    djb2_table.insert("apple", "fruit");
+    djb2_table.insert("car", "vehicle");
+    djb2_table.insert("house", "building");
+    djb2_table.print();
+
+    cout << "\n3. City Hash Function\n";
+    HashTable<string, string> city_table(10, city_hash);
+    city_table.insert("apple", "fruit");
+    city_table.insert("car", "vehicle");
+    city_table.insert("house", "building");
+    city_table.print();
+
+    cout << "\n=== Testing Completed ===\n";
+}
 
 int main() {
-    // Создаем хэш-таблицу фиксированного размера
-    HashTable<int, int> table(10);
-
-    // Включаем рехэширование
-    table.enable_rehashing();
-    cout << "Rehashing enabled" << endl;
-
-    // Тестирование вставки
-    cout << "Inserting values..." << endl;
-    for (int i = 1; i <= 15; ++i) {
-        table.insert(i, i * 10);
-        cout << "Inserted: Key = " << i << ", Value = " << i * 10 << endl;
-    }
-
-    // Печать таблицы
-    cout << "\nHash Table after insertion:" << endl;
-    table.print();
-
-    // Тестирование поиска
-    cout << "\nSearching values..." << endl;
-    for (int i = 1; i <= 15; ++i) {
-        int* value = table.search(i);
-        if (value) {
-            cout << "Found: Key = " << i << ", Value = " << *value << endl;
-        }
-        else {
-            cout << "Key " << i << " not found" << endl;
-        }
-    }
-
-    // Тестирование удаления
-    cout << "\nDeleting keys 3, 7, 10..." << endl;
-    table.erase(3);
-    table.erase(7);
-    table.erase(10);
-
-    // Печать таблицы после удаления
-    cout << "\nHash Table after deletion:" << endl;
-    table.print();
-
-    // Проверка contains
-    cout << "\nChecking if values exist:" << endl;
-    for (int i = 1; i <= 15; ++i) {
-        if (table.contains(i * 10)) {
-            cout << "Value " << i * 10 << " exists in the table" << endl;
-        }
-        else {
-            cout << "Value " << i * 10 << " does not exist in the table" << endl;
-        }
-    }
-
-    // Тестирование insert_or_assign
-    cout << "\nTesting insert_or_assign..." << endl;
-    table.insert_or_assign(5, 999);
-    table.insert_or_assign(13, 888);
-    table.insert_or_assign(20, 777); // Новый ключ
-
-    // Печать таблицы после insert_or_assign
-    cout << "\nHash Table after insert_or_assign:" << endl;
-    table.print();
-
-    // Получение размера таблицы
-    cout << "\nHash Table size: " << table.get_size() << endl;
-
-    // Получение количества элементов
-    cout << "Hash Table element count: " << table.get_count() << endl;
-
-    // Отключение рехэширования
-    table.disable_rehashing();
-    cout << "\nRehashing disabled" << endl;
-
-    // Добавление новых значений без рехэширования
-    cout << "Inserting more values without rehashing..." << endl;
-    for (int i = 16; i <= 20; ++i) {
-        table.insert(i, i * 10);
-    }
-
-    // Печать таблицы
-    cout << "\nHash Table after inserting more values:" << endl;
-    table.print();
-
+    test_hash_functionality();
     return 0;
 }

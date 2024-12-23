@@ -4,6 +4,7 @@
 #include <vector>
 #include <cmath>
 #include <random>
+#include "..\algorithm\hash_functions.h"
 
 using namespace std;
 
@@ -26,13 +27,8 @@ namespace algorithm {
         size_t _size;
         bool rehashing_enabled = false;
 
-        size_t hash_function(K key) {
-            size_t a = 2654435761;
-            size_t w = sizeof(int) * 8;
-            size_t l = log2(_data.size());
-            size_t result = ((key * a) % static_cast<size_t>(pow(2, w))) >> (w - l);
-            return result;
-        }
+        // Указатель на хэш-функцию
+        size_t(*hash_function)(K);
 
         void rehash() {
             size_t new_size = _size * 2;
@@ -58,10 +54,11 @@ namespace algorithm {
         }
 
     public:
-        HashTable(int size);
+        HashTable(int size, size_t(*hash_func)(K) = base_hash_function<K>);
+        HashTable(int size, int min_key, int max_key, int min_value, int max_value, size_t(*hash_func)(K) = base_hash_function<K>);
         ~HashTable();
         HashTable(const HashTable& other);
-        HashTable(int size, int min_key, int max_key, int min_value, int max_value);
+
         void print();
         void insert(K key, T value);
         void insert_or_assign(K key, T value);
@@ -77,8 +74,9 @@ namespace algorithm {
         void disable_rehashing();
     };
 
+
     template<typename K, typename T>
-    HashTable<K, T>::HashTable(int size) : _size(size) {
+    HashTable<K, T>::HashTable(int size, size_t(*hash_func)(K)) : _size(size), hash_function(hash_func) {
         _data.resize(_size);
     }
 
@@ -108,7 +106,8 @@ namespace algorithm {
     }
 
     template<typename K, typename T>
-    HashTable<K, T>::HashTable(int size, int min_key, int max_key, int min_value, int max_value) : _size(size) {
+    HashTable<K, T>::HashTable(int size, int min_key, int max_key, int min_value, int max_value, size_t(*hash_func)(K))
+        : _size(size), hash_function(hash_func) {
         _data.resize(_size);
         for (int i = 0; i < 25; ++i) {
             K key = random(min_key, max_key);
@@ -145,7 +144,7 @@ namespace algorithm {
             rehash();
         }
 
-        size_t index = hash_function(key);
+        size_t index = hash_function(key) % _size;
         HashPair<K, T>* temp = &_data[index];
         if (temp->_filled) {
             while (temp->_next) {
