@@ -1,11 +1,11 @@
 #include <iostream>
-#include "..\algorithm\algorithm.h"
+#include "..\algorithm\chain_hash_table.h"
 #include "..\algorithm\hash_functions.h"
 
 
 using namespace std;
-using namespace algorithm;
-using namespace algorithm2;
+using namespace ListHashTable;
+using namespace TreeHashTable;
 
 
 void test_hash_functionality() {

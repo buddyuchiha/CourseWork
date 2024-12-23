@@ -54,14 +54,14 @@ size_t sdbm_hash(std::string key) {
 size_t djb2_hash(std::string key) {
     size_t hash = 5381;
     for (char c : key) {
-        hash = ((hash << 5) + hash) + c; // hash * 33 + c
+        hash = ((hash << 5) + hash) + c; 
     }
     return hash;
 }
 
 size_t city_hash(std::string key) {
     size_t hash = 0;
-    size_t prime = 37; // Простое число
+    size_t prime = 37; 
     for (char c : key) {
         hash = hash * prime + c;
     }

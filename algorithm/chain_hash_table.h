@@ -8,9 +8,9 @@
 
 using namespace std;
 
-namespace algorithm {
+namespace ListHashTable {
     template <typename K, typename T>
-    class HashTable {
+    class HashTableList {
     private:
         template <typename K, typename T>
         struct HashPair {
@@ -27,7 +27,6 @@ namespace algorithm {
         size_t _size;
         bool rehashing_enabled = false;
 
-        // Óêàçàòåëü íà õýø-ôóíêöèþ
         size_t(*hash_function)(K);
 
         void rehash() {
@@ -54,10 +53,10 @@ namespace algorithm {
         }
 
     public:
-        HashTable(int size, size_t(*hash_func)(K) = base_hash_function<K>);
-        HashTable(int size, int min_key, int max_key, int min_value, int max_value, size_t(*hash_func)(K) = base_hash_function<K>);
-        ~HashTable();
-        HashTable(const HashTable& other);
+        HashTableList(int size, size_t(*hash_func)(K) = base_hash_function<K>);
+        HashTableList(int size, int min_key, int max_key, int min_value, int max_value, size_t(*hash_func)(K) = base_hash_function<K>);
+        ~HashTableList();
+        HashTableList(const HashTableList& other);
 
         void print();
         void insert(K key, T value);
@@ -66,7 +65,7 @@ namespace algorithm {
         T* search(K key);
         bool erase(K key);
         int count(K key);
-        HashTable<K, T>& operator=(const HashTable<K, T>& other);
+        HashTableList<K, T>& operator=(const HashTableList<K, T>& other);
         int get_count();
         int get_size();
 
@@ -76,12 +75,12 @@ namespace algorithm {
 
 
     template<typename K, typename T>
-    HashTable<K, T>::HashTable(int size, size_t(*hash_func)(K)) : _size(size), hash_function(hash_func) {
+    HashTableList<K, T>::HashTableList(int size, size_t(*hash_func)(K)) : _size(size), hash_function(hash_func) {
         _data.resize(_size);
     }
 
     template<typename K, typename T>
-    HashTable<K, T>::~HashTable() {
+    HashTableList<K, T>::~HashTableList() {
         for (size_t i = 0; i < _size; ++i) {
             HashPair<K, T>* current = _data[i]._next;
             while (current) {
@@ -94,7 +93,7 @@ namespace algorithm {
     }
 
     template<typename K, typename T>
-    HashTable<K, T>::HashTable(const HashTable& other) : _size(other._size), _count(other._count) {
+    HashTableList<K, T>::HashTableList(const HashTableList& other) : _size(other._size), _count(other._count) {
         _data.resize(_size);
         for (size_t i = 0; i < _size; ++i) {
             HashPair<K, T>* current = other._data[i]._next;
@@ -106,7 +105,7 @@ namespace algorithm {
     }
 
     template<typename K, typename T>
-    HashTable<K, T>::HashTable(int size, int min_key, int max_key, int min_value, int max_value, size_t(*hash_func)(K))
+    HashTableList<K, T>::HashTableList(int size, int min_key, int max_key, int min_value, int max_value, size_t(*hash_func)(K))
         : _size(size), hash_function(hash_func) {
         _data.resize(_size);
         for (int i = 0; i < 25; ++i) {
@@ -117,16 +116,17 @@ namespace algorithm {
     }
 
     template<typename K, typename T>
-    void HashTable<K, T>::enable_rehashing() {
+    void HashTableList<K, T>::enable_rehashing() {
         rehashing_enabled = true;
     }
 
     template<typename K, typename T>
-    void HashTable<K, T>::disable_rehashing() {
+    void HashTableList<K, T>::disable_rehashing() {
         rehashing_enabled = false;
     }
+
     template<typename K, typename T>
-    void HashTable<K, T>::print()
+    void HashTableList<K, T>::print()
     {
         for (int i = 0; i < _data.size(); i++) {
             cout << "Bucket: " << i << endl;
@@ -138,8 +138,9 @@ namespace algorithm {
             cout << endl;
         }
     }
+
     template<typename K, typename T>
-    void HashTable<K, T>::insert(K key, T value) {
+    void HashTableList<K, T>::insert(K key, T value) {
         if (rehashing_enabled && _count >= _size * 0.75) {
             rehash();
         }
@@ -161,7 +162,7 @@ namespace algorithm {
     }
 
     template<typename K, typename T>
-    void HashTable<K, T>::insert_or_assign(K key, T value) {
+    void HashTableList<K, T>::insert_or_assign(K key, T value) {
         size_t index = hash_function(key);
         HashPair<K, T>* temp = &_data[index];
         while (temp) {
@@ -175,7 +176,7 @@ namespace algorithm {
     }
 
     template<typename K, typename T>
-    bool HashTable<K, T>::contains(T value) {
+    bool HashTableList<K, T>::contains(T value) {
         for (auto& pair : _data) {
             HashPair<K, T>* temp = &pair;
             while (temp) {
@@ -189,7 +190,7 @@ namespace algorithm {
     }
 
     template<typename K, typename T>
-    T* HashTable<K, T>::search(K key) {
+    T* HashTableList<K, T>::search(K key) {
         size_t index = hash_function(key);
         if (!_data[index]._filled) {
             return nullptr;
@@ -207,7 +208,7 @@ namespace algorithm {
     }
 
     template<typename K, typename T>
-    bool HashTable<K, T>::erase(K key) {
+    bool HashTableList<K, T>::erase(K key) {
         size_t index = hash_function(key);
         HashPair<K, T>* current = &_data[index];
         HashPair<K, T>* prev = nullptr;
@@ -240,7 +241,7 @@ namespace algorithm {
 
 
     template<typename K, typename T>
-    int HashTable<K, T>::count(K key) {
+    int HashTableList<K, T>::count(K key) {
         size_t index = hash_function(key);
         int count = 0;
         HashPair<K, T>* current = &_data[index];
@@ -252,7 +253,7 @@ namespace algorithm {
     }
 
     template<typename K, typename T>
-    HashTable<K, T>& HashTable<K, T>::operator=(const HashTable<K, T>& other) {
+    HashTableList<K, T>& HashTableList<K, T>::operator=(const HashTableList<K, T>& other) {
         if (this == &other) {
             return *this;
         }
@@ -283,7 +284,7 @@ namespace algorithm {
     }
 
     template<typename K, typename T>
-    int HashTable<K, T>::get_count() {
+    int HashTableList<K, T>::get_count() {
         int count_ = 0;
         for (const auto& pair : _data) {
             if (pair._filled) {
@@ -294,11 +295,12 @@ namespace algorithm {
     }
 
     template<typename K, typename T>
-    int HashTable<K, T>::get_size() {
+    int HashTableList<K, T>::get_size() {
         return _data.size();
     }
 }
-namespace algorithm2 {
+
+namespace TreeHashTable {
     template <typename K, typename T>
     class HashTableTree {
     private:
@@ -326,59 +328,59 @@ namespace algorithm2 {
             return node ? node->height : 0;
         }
 
-        int balanceFactor(AVLNode<K, T>* node) {
+        int balance_factor(AVLNode<K, T>* node) {
             return node ? height(node->left) - height(node->right) : 0;
         }
 
-        void updateHeight(AVLNode<K, T>* node) {
+        void update_height(AVLNode<K, T>* node) {
             node->height = 1 + max(height(node->left), height(node->right));
         }
 
-        AVLNode<K, T>* rightRotate(AVLNode<K, T>* y) {
+        AVLNode<K, T>* right_rotate(AVLNode<K, T>* y) {
             AVLNode<K, T>* x = y->left;
             AVLNode<K, T>* T2 = x->right;
 
             x->right = y;
             y->left = T2;
 
-            updateHeight(y);
-            updateHeight(x);
+            update_height(y);
+            update_height(x);
 
             return x;
         }
 
-        AVLNode<K, T>* leftRotate(AVLNode<K, T>* x) {
+        AVLNode<K, T>* left_rotate(AVLNode<K, T>* x) {
             AVLNode<K, T>* y = x->right;
             AVLNode<K, T>* T2 = y->left;
 
             y->left = x;
             x->right = T2;
 
-            updateHeight(x);
-            updateHeight(y);
+            update_height(x);
+            update_height(y);
 
             return y;
         }
 
         AVLNode<K, T>* balance(AVLNode<K, T>* node) {
-            int balance = balanceFactor(node);
+            int balance = balance_factor(node);
 
-            if (balance > 1 && balanceFactor(node->left) >= 0) {
-                return rightRotate(node);
+            if (balance > 1 && balance_factor(node->left) >= 0) {
+                return right_rotate(node);
             }
 
-            if (balance < -1 && balanceFactor(node->right) <= 0) {
-                return leftRotate(node);
+            if (balance < -1 && balance_factor(node->right) <= 0) {
+                return left_rotate(node);
             }
 
-            if (balance > 1 && balanceFactor(node->left) < 0) {
-                node->left = leftRotate(node->left);
-                return rightRotate(node);
+            if (balance > 1 && balance_factor(node->left) < 0) {
+                node->left = left_rotate(node->left);
+                return right_rotate(node);
             }
 
-            if (balance < -1 && balanceFactor(node->right) > 0) {
-                node->right = rightRotate(node->right);
-                return leftRotate(node);
+            if (balance < -1 && balance_factor(node->right) > 0) {
+                node->right = right_rotate(node->right);
+                return left_rotate(node);
             }
 
             return node;
@@ -398,7 +400,7 @@ namespace algorithm2 {
                 return node;
             }
 
-            updateHeight(node);
+            update_height(node);
             return balance(node);
         }
 
@@ -410,14 +412,14 @@ namespace algorithm2 {
             else return node;
         }
 
-        AVLNode<K, T>* deleteNode(AVLNode<K, T>* node, K key) {
+        AVLNode<K, T>* delete_node(AVLNode<K, T>* node, K key) {
             if (!node) return node;
 
             if (key < node->_key) {
-                node->left = deleteNode(node->left, key);
+                node->left = delete_node(node->left, key);
             }
             else if (key > node->_key) {
-                node->right = deleteNode(node->right, key);
+                node->right = delete_node(node->right, key);
             }
             else {
                 if (!node->left || !node->right) {
@@ -432,20 +434,20 @@ namespace algorithm2 {
                     delete temp;
                 }
                 else {
-                    AVLNode<K, T>* temp = getMinValueNode(node->right);
+                    AVLNode<K, T>* temp = get_min_value_node(node->right);
                     node->_key = temp->_key;
                     node->_value = temp->_value;
-                    node->right = deleteNode(node->right, temp->_key);
+                    node->right = delete_node(node->right, temp->_key);
                 }
             }
 
             if (!node) return node;
 
-            updateHeight(node);
+            update_height(node);
             return balance(node);
         }
 
-        AVLNode<K, T>* getMinValueNode(AVLNode<K, T>* node) {
+        AVLNode<K, T>* get_min_value_node(AVLNode<K, T>* node) {
             AVLNode<K, T>* current = node;
             while (current && current->left) {
                 current = current->left;
@@ -462,20 +464,20 @@ namespace algorithm2 {
 
             for (auto& node : old_data) {
                 if (node) {
-                    insertFromTree(node);
+                    insert_from_tree(node);
                 }
             }
         }
 
-        void insertFromTree(AVLNode<K, T>* node) {
+        void insert_from_tree(AVLNode<K, T>* node) {
             if (!node) return;
 
             insert(node->_key, node->_value);
-            insertFromTree(node->left);
-            insertFromTree(node->right);
+            insert_from_tree(node->left);
+            insert_from_tree(node->right);
         }
 
-        bool containsInTree(AVLNode<K, T>* node, T value) {
+        bool contains_in_tree(AVLNode<K, T>* node, T value) {
             if (!node) {
                 return false;
             }
@@ -484,7 +486,7 @@ namespace algorithm2 {
                 return true;
             }
 
-            return containsInTree(node->left, value) || containsInTree(node->right, value);
+            return contains_in_tree(node->left, value) || contains_in_tree(node->right, value);
         }
 
     public:
@@ -503,8 +505,8 @@ namespace algorithm2 {
         HashTableTree<K, T>& operator=(const HashTableTree<K, T>& other);
         int get_count();
         int get_size();
-        void deleteTree(AVLNode<K, T>* node);
-        void printTree(AVLNode<K, T>* node);
+        void delete_tree(AVLNode<K, T>* node);
+        void print_tree(AVLNode<K, T>* node);
 
         void enable_rehashing();
         void disable_rehashing();
@@ -518,15 +520,15 @@ namespace algorithm2 {
     template<typename K, typename T>
     HashTableTree<K, T>::~HashTableTree() {
         for (size_t i = 0; i < _size; ++i) {
-            deleteTree(_data[i]);
+            delete_tree(_data[i]);
         }
     }
 
     template<typename K, typename T>
-    void HashTableTree<K, T>::deleteTree(AVLNode<K, T>* node) {
+    void HashTableTree<K, T>::delete_tree(AVLNode<K, T>* node) {
         if (node) {
-            deleteTree(node->left);
-            deleteTree(node->right);
+            delete_tree(node->left);
+            delete_tree(node->right);
             delete node;
         }
     }
@@ -536,7 +538,7 @@ namespace algorithm2 {
         _data.resize(_size, nullptr);
         for (size_t i = 0; i < _size; ++i) {
             if (other._data[i]) {
-                insertFromTree(other._data[i]);
+                insert_from_tree(other._data[i]);
             }
         }
     }
@@ -545,17 +547,17 @@ namespace algorithm2 {
     void HashTableTree<K, T>::print() {
         for (size_t i = 0; i < _size; ++i) {
             cout << "Bucket: " << i << endl;
-            printTree(_data[i]);
+            print_tree(_data[i]);
             cout << endl;
         }
     }
 
     template<typename K, typename T>
-    void HashTableTree<K, T>::printTree(AVLNode<K, T>* node) {
+    void HashTableTree<K, T>::print_tree(AVLNode<K, T>* node) {
         if (!node) return;
         cout << "{" << "Key: " << node->_key << " Value: " << node->_value << "}" << endl;
-        printTree(node->left);
-        printTree(node->right);
+        print_tree(node->left);
+        print_tree(node->right);
     }
 
     template<typename K, typename T>
@@ -585,7 +587,7 @@ namespace algorithm2 {
     bool HashTableTree<K, T>::contains(T value) {
         for (auto& node : _data) {
             if (node) {
-                if (containsInTree(node, value)) {
+                if (contains_in_tree(node, value)) {
                     return true;
                 }
             }
@@ -604,7 +606,7 @@ namespace algorithm2 {
     bool HashTableTree<K, T>::erase(K key) {
         size_t index = hash_function(key) % _size;
         if (_data[index]) {
-            _data[index] = deleteNode(_data[index], key);
+            _data[index] = delete_node(_data[index], key);
             _count--;
             return true;
         }
