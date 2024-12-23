@@ -1,6 +1,9 @@
 ﻿#pragma once
+
 #include <cmath>
 #include <string>
+
+using namespace std;
 
 template <typename K>
 size_t base_hash_function(K key) {
@@ -43,7 +46,7 @@ size_t fnv1a_hash(K key) {
 }
 
 
-size_t sdbm_hash(std::string key) {
+size_t sdbm_hash(string key) {
     size_t hash = 0;
     for (char c : key) {
         hash = ((hash << 6) + (hash << 16) - hash) + c;
@@ -51,7 +54,7 @@ size_t sdbm_hash(std::string key) {
     return hash;
 }
 
-size_t djb2_hash(std::string key) {
+size_t djb2_hash(string key) {
     size_t hash = 5381;
     for (char c : key) {
         hash = ((hash << 5) + hash) + c; 
@@ -59,7 +62,7 @@ size_t djb2_hash(std::string key) {
     return hash;
 }
 
-size_t city_hash(std::string key) {
+size_t city_hash(string key) {
     size_t hash = 0;
     size_t prime = 37; 
     for (char c : key) {

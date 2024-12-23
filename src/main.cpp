@@ -1,64 +1,79 @@
 #include <iostream>
 #include "..\algorithm\chain_hash_table.h"
+#include "..\algorithm\adress_hash_table.h"
 #include "..\algorithm\hash_functions.h"
 
 
 using namespace std;
 using namespace ListHashTable;
 using namespace TreeHashTable;
+using namespace LinearHashTable;
 
-
-void test_hash_functionality() {
-    cout << "=== Testing Hash Table with Various Hash Functions ===\n";
-
-    cout << "\n1. Base Hash Function\n";
-    HashTableTree<int, int> base_table(10, base_hash_function<int>);
-    base_table.insert(1, 100);
-    base_table.insert(2, 200);
-    base_table.insert(3, 300);
-    base_table.print();
-
-    cout << "\n2. Murmur Hash Function\n";
-    HashTableTree<int, int> murmur_table(10, murmur_hash<int>);
-    murmur_table.insert(1, 100);
-    murmur_table.insert(2, 200);
-    murmur_table.insert(3, 300);
-    murmur_table.print();
-
-    cout << "\n3. FNV-1a Hash Function\n";
-    HashTableTree<int, int> fnv_table(10, fnv1a_hash<int>);
-    fnv_table.insert(1, 100);
-    fnv_table.insert(2, 200);
-    fnv_table.insert(3, 300);
-    fnv_table.print();
-
-    cout << "=== Testing Hash Table with String Hash Functions ===\n";
-
-    cout << "\n1. SDBM Hash Function\n";
-    HashTableTree<string, string> sdbm_table(10, sdbm_hash);
-    sdbm_table.insert("apple", "fruit");
-    sdbm_table.insert("car", "vehicle");
-    sdbm_table.insert("house", "building");
-    sdbm_table.print();
-
-    cout << "\n2. DJB2 Hash Function\n";
-    HashTableTree<string, string> djb2_table(10, djb2_hash);
-    djb2_table.insert("apple", "fruit");
-    djb2_table.insert("car", "vehicle");
-    djb2_table.insert("house", "building");
-    djb2_table.print();
-
-    cout << "\n3. City Hash Function\n";
-    HashTableTree<string, string> city_table(10, city_hash);
-    city_table.insert("apple", "fruit");
-    city_table.insert("car", "vehicle");
-    city_table.insert("house", "building");
-    city_table.print();
-
-    cout << "\n=== Testing Completed ===\n";
-}
 
 int main() {
-    test_hash_functionality();
+    // Данные для тестирования
+    vector<int> int_keys = { 1, 2, 11, 21, 31, 42 };
+    vector<string> string_keys = { "apple", "banana", "grape", "orange", "peach", "plum" };
+
+    // Проверяем целочисленные хэш-функции
+    cout << "Testing integer hash functions:\n";
+
+    // base_hash_function
+    cout << "Base hash function:\n";
+    HashTableLinear<int, string> int_table1(10, base_hash_function<int>);
+    for (size_t i = 0; i < int_keys.size(); ++i) {
+        int_table1.insert(int_keys[i], "Value_" + to_string(int_keys[i]));
+    }
+    int_table1.print();
+    cout << "Collisions: " << int_table1.get_count() << "\n\n";
+
+    // murmur_hash
+    cout << "Murmur hash:\n";
+    HashTableLinear<int, string> int_table2(10, murmur_hash<int>);
+    for (size_t i = 0; i < int_keys.size(); ++i) {
+        int_table2.insert(int_keys[i], "Value_" + to_string(int_keys[i]));
+    }
+    int_table2.print();
+    cout << "Collisions: " << int_table2.get_count() << "\n\n";
+
+    // fnv1a_hash
+    cout << "FNV-1a hash:\n";
+    HashTableLinear<int, string> int_table3(10, fnv1a_hash<int>);
+    for (size_t i = 0; i < int_keys.size(); ++i) {
+        int_table3.insert(int_keys[i], "Value_" + to_string(int_keys[i]));
+    }
+    int_table3.print();
+    cout << "Collisions: " << int_table3.get_count() << "\n\n";
+
+    // Проверяем строковые хэш-функции
+    cout << "Testing string hash functions:\n";
+
+    // sdbm_hash
+    cout << "SDBM hash:\n";
+    HashTableLinear<string, int> string_table1(10, sdbm_hash);
+    for (size_t i = 0; i < string_keys.size(); ++i) {
+        string_table1.insert(string_keys[i], i + 1);
+    }
+    string_table1.print();
+    cout << "Collisions: " << string_table1.get_count() << "\n\n";
+
+    // djb2_hash
+    cout << "DJB2 hash:\n";
+    HashTableLinear<string, int> string_table2(10, djb2_hash);
+    for (size_t i = 0; i < string_keys.size(); ++i) {
+        string_table2.insert(string_keys[i], i + 1);
+    }
+    string_table2.print();
+    cout << "Collisions: " << string_table2.get_count() << "\n\n";
+
+    // city_hash
+    cout << "City hash:\n";
+    HashTableLinear<string, int> string_table3(10, city_hash);
+    for (size_t i = 0; i < string_keys.size(); ++i) {
+        string_table3.insert(string_keys[i], i + 1);
+    }
+    string_table3.print();
+    cout << "Collisions: " << string_table3.get_count() << "\n\n";
+
     return 0;
 }
