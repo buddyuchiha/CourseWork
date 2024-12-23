@@ -7,12 +7,12 @@ using namespace algorithm;
 
 
 int task(int experiments, int size) {
-	int sum = 0;
-	for (int i = 0; i < experiments; i++) {
-		HashTable <int, int> task_table(size, 1, 100, 1, 1000);
-		sum += task_table.get_count();
-	}
-	return sum;
+    int sum = 0;
+    for (int i = 0; i < experiments; i++) {
+        HashTable <int, int> task_table(size, 1, 100, 1, 1000);
+        sum += task_table.get_count();
+    }
+    return sum;
 }
 
 void test_hash_functionality() {
@@ -43,14 +43,14 @@ void test_hash_functionality() {
     cout << "=== Testing Hash Table with String Hash Functions ===\n";
 
     cout << "\n1. SDBM Hash Function\n";
-    HashTable<string, string> sdbm_table(10, sdbm_hash<string>);
+    HashTable<string, string> sdbm_table(10, sdbm_hash);
     sdbm_table.insert("apple", "fruit");
     sdbm_table.insert("car", "vehicle");
     sdbm_table.insert("house", "building");
     sdbm_table.print();
 
     cout << "\n2. DJB2 Hash Function\n";
-    HashTable<string, string> djb2_table(10, djb2_hash<string>);
+    HashTable<string, string> djb2_table(10, djb2_hash);
     djb2_table.insert("apple", "fruit");
     djb2_table.insert("car", "vehicle");
     djb2_table.insert("house", "building");

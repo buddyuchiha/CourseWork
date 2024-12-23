@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <iostream>
 #include <vector>
@@ -27,7 +27,7 @@ namespace algorithm {
         size_t _size;
         bool rehashing_enabled = false;
 
-        // Óêàçàòåëü íà õýø-ôóíêöèþ
+        // Ã“ÃªÃ Ã§Ã Ã²Ã¥Ã«Ã¼ Ã­Ã  ÃµÃ½Ã¸-Ã´Ã³Ã­ÃªÃ¶Ã¨Ã¾
         size_t(*hash_function)(K);
 
         void rehash() {
@@ -215,21 +215,21 @@ namespace algorithm {
         while (current) {
             if (current->_key == key && current->_filled) {
                 if (prev) {
-                    prev->_next = current->_next; 
-                    delete current;             
+                    prev->_next = current->_next;
+                    delete current;
                 }
                 else {
                     if (current->_next) {
                         HashPair<K, T>* next = current->_next;
-                        _data[index] = *next;    
-                        delete next;            
+                        _data[index] = *next;
+                        delete next;
                     }
                     else {
-                        _data[index]._filled = false; 
+                        _data[index]._filled = false;
                         _data[index]._next = nullptr;
                     }
                 }
-                _count--; 
+                _count--;
                 return true;
             }
             prev = current;

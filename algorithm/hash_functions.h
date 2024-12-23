@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include <cmath>
 #include <string>
 
@@ -43,8 +43,7 @@ size_t fnv1a_hash(K key) {
 }
 
 
-// SDBM Hash (строки)
-size_t sdbm_hash(std::string& key) {
+size_t sdbm_hash(std::string key) {
     size_t hash = 0;
     for (char c : key) {
         hash = ((hash << 6) + (hash << 16) - hash) + c;
@@ -52,8 +51,7 @@ size_t sdbm_hash(std::string& key) {
     return hash;
 }
 
-// DJB2 Hash (строки)
-size_t djb2_hash(std::string& key) {
+size_t djb2_hash(std::string key) {
     size_t hash = 5381;
     for (char c : key) {
         hash = ((hash << 5) + hash) + c; // hash * 33 + c
@@ -61,10 +59,9 @@ size_t djb2_hash(std::string& key) {
     return hash;
 }
 
-// City Hash (строки)
-size_t city_hash(std::string& key) {
+size_t city_hash(std::string key) {
     size_t hash = 0;
-    size_t prime = 37; // Простое число
+    size_t prime = 37; // РџСЂРѕСЃС‚РѕРµ С‡РёСЃР»Рѕ
     for (char c : key) {
         hash = hash * prime + c;
     }
