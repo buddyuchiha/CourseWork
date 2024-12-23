@@ -298,3 +298,351 @@ namespace algorithm {
         return _data.size();
     }
 }
+namespace algorithm2 {
+    template <typename K, typename T>
+    class HashTableTree {
+    private:
+        template <typename K, typename T>
+        struct AVLNode {
+            K _key;
+            T _value;
+            AVLNode* left;
+            AVLNode* right;
+            int height;
+
+            AVLNode(K key, T value)
+                : _key(key), _value(value), left(nullptr), right(nullptr), height(1) {
+            }
+        };
+
+        vector<AVLNode<K, T>*> _data;
+        int _count = 0;
+        size_t _size;
+        bool rehashing_enabled = false;
+
+        size_t(*hash_function)(K);
+
+        int height(AVLNode<K, T>* node) {
+            return node ? node->height : 0;
+        }
+
+        int balanceFactor(AVLNode<K, T>* node) {
+            return node ? height(node->left) - height(node->right) : 0;
+        }
+
+        void updateHeight(AVLNode<K, T>* node) {
+            node->height = 1 + max(height(node->left), height(node->right));
+        }
+
+        AVLNode<K, T>* rightRotate(AVLNode<K, T>* y) {
+            AVLNode<K, T>* x = y->left;
+            AVLNode<K, T>* T2 = x->right;
+
+            x->right = y;
+            y->left = T2;
+
+            updateHeight(y);
+            updateHeight(x);
+
+            return x;
+        }
+
+        AVLNode<K, T>* leftRotate(AVLNode<K, T>* x) {
+            AVLNode<K, T>* y = x->right;
+            AVLNode<K, T>* T2 = y->left;
+
+            y->left = x;
+            x->right = T2;
+
+            updateHeight(x);
+            updateHeight(y);
+
+            return y;
+        }
+
+        AVLNode<K, T>* balance(AVLNode<K, T>* node) {
+            int balance = balanceFactor(node);
+
+            if (balance > 1 && balanceFactor(node->left) >= 0) {
+                return rightRotate(node);
+            }
+
+            if (balance < -1 && balanceFactor(node->right) <= 0) {
+                return leftRotate(node);
+            }
+
+            if (balance > 1 && balanceFactor(node->left) < 0) {
+                node->left = leftRotate(node->left);
+                return rightRotate(node);
+            }
+
+            if (balance < -1 && balanceFactor(node->right) > 0) {
+                node->right = rightRotate(node->right);
+                return leftRotate(node);
+            }
+
+            return node;
+        }
+
+        AVLNode<K, T>* insert(AVLNode<K, T>* node, K key, T value) {
+            if (!node) return new AVLNode<K, T>(key, value);
+
+            if (key < node->_key) {
+                node->left = insert(node->left, key, value);
+            }
+            else if (key > node->_key) {
+                node->right = insert(node->right, key, value);
+            }
+            else {
+                node->_value = value;
+                return node;
+            }
+
+            updateHeight(node);
+            return balance(node);
+        }
+
+        AVLNode<K, T>* search(AVLNode<K, T>* node, K key) {
+            if (!node) return nullptr;
+
+            if (key < node->_key) return search(node->left, key);
+            else if (key > node->_key) return search(node->right, key);
+            else return node;
+        }
+
+        AVLNode<K, T>* deleteNode(AVLNode<K, T>* node, K key) {
+            if (!node) return node;
+
+            if (key < node->_key) {
+                node->left = deleteNode(node->left, key);
+            }
+            else if (key > node->_key) {
+                node->right = deleteNode(node->right, key);
+            }
+            else {
+                if (!node->left || !node->right) {
+                    AVLNode<K, T>* temp = node->left ? node->left : node->right;
+                    if (!temp) {
+                        temp = node;
+                        node = nullptr;
+                    }
+                    else {
+                        *node = *temp;
+                    }
+                    delete temp;
+                }
+                else {
+                    AVLNode<K, T>* temp = getMinValueNode(node->right);
+                    node->_key = temp->_key;
+                    node->_value = temp->_value;
+                    node->right = deleteNode(node->right, temp->_key);
+                }
+            }
+
+            if (!node) return node;
+
+            updateHeight(node);
+            return balance(node);
+        }
+
+        AVLNode<K, T>* getMinValueNode(AVLNode<K, T>* node) {
+            AVLNode<K, T>* current = node;
+            while (current && current->left) {
+                current = current->left;
+            }
+            return current;
+        }
+
+        void rehash() {
+            size_t new_size = _size * 2;
+            vector<AVLNode<K, T>*> old_data = std::move(_data);
+            _data.resize(new_size, nullptr);
+            _size = new_size;
+            _count = 0;
+
+            for (auto& node : old_data) {
+                if (node) {
+                    insertFromTree(node);
+                }
+            }
+        }
+
+        void insertFromTree(AVLNode<K, T>* node) {
+            if (!node) return;
+
+            insert(node->_key, node->_value);
+            insertFromTree(node->left);
+            insertFromTree(node->right);
+        }
+
+        bool containsInTree(AVLNode<K, T>* node, T value) {
+            if (!node) {
+                return false;
+            }
+
+            if (node->_value == value) {
+                return true;
+            }
+
+            return containsInTree(node->left, value) || containsInTree(node->right, value);
+        }
+
+    public:
+        HashTableTree(int size, size_t(*hash_func)(K) = base_hash_function<K>);
+        HashTableTree(int size, int min_key, int max_key, int min_value, int max_value, size_t(*hash_func)(K) = base_hash_function<K>);
+        ~HashTableTree();
+        HashTableTree(const HashTableTree& other);
+
+        void print();
+        void insert(K key, T value);
+        void insert_or_assign(K key, T value);
+        bool contains(T value);
+        T* search(K key);
+        bool erase(K key);
+        int count(K key);
+        HashTableTree<K, T>& operator=(const HashTableTree<K, T>& other);
+        int get_count();
+        int get_size();
+        void deleteTree(AVLNode<K, T>* node);
+        void printTree(AVLNode<K, T>* node);
+
+        void enable_rehashing();
+        void disable_rehashing();
+    };
+
+    template<typename K, typename T>
+    HashTableTree<K, T>::HashTableTree(int size, size_t(*hash_func)(K)) : _size(size), hash_function(hash_func) {
+        _data.resize(_size, nullptr);
+    }
+
+    template<typename K, typename T>
+    HashTableTree<K, T>::~HashTableTree() {
+        for (size_t i = 0; i < _size; ++i) {
+            deleteTree(_data[i]);
+        }
+    }
+
+    template<typename K, typename T>
+    void HashTableTree<K, T>::deleteTree(AVLNode<K, T>* node) {
+        if (node) {
+            deleteTree(node->left);
+            deleteTree(node->right);
+            delete node;
+        }
+    }
+
+    template<typename K, typename T>
+    HashTableTree<K, T>::HashTableTree(const HashTableTree& other) : _size(other._size), _count(other._count) {
+        _data.resize(_size, nullptr);
+        for (size_t i = 0; i < _size; ++i) {
+            if (other._data[i]) {
+                insertFromTree(other._data[i]);
+            }
+        }
+    }
+
+    template<typename K, typename T>
+    void HashTableTree<K, T>::print() {
+        for (size_t i = 0; i < _size; ++i) {
+            cout << "Bucket: " << i << endl;
+            printTree(_data[i]);
+            cout << endl;
+        }
+    }
+
+    template<typename K, typename T>
+    void HashTableTree<K, T>::printTree(AVLNode<K, T>* node) {
+        if (!node) return;
+        cout << "{" << "Key: " << node->_key << " Value: " << node->_value << "}" << endl;
+        printTree(node->left);
+        printTree(node->right);
+    }
+
+    template<typename K, typename T>
+    void HashTableTree<K, T>::insert(K key, T value) {
+        if (rehashing_enabled && _count >= _size * 0.75) {
+            rehash();
+        }
+
+        size_t index = hash_function(key) % _size;
+        _data[index] = insert(_data[index], key, value);
+        _count++;
+    }
+
+    template<typename K, typename T>
+    void HashTableTree<K, T>::insert_or_assign(K key, T value) {
+        size_t index = hash_function(key) % _size;
+        AVLNode<K, T>* node = search(_data[index], key);
+        if (node) {
+            node->_value = value;
+        }
+        else {
+            insert(key, value);
+        }
+    }
+
+    template<typename K, typename T>
+    bool HashTableTree<K, T>::contains(T value) {
+        for (auto& node : _data) {
+            if (node) {
+                if (containsInTree(node, value)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    template<typename K, typename T>
+    T* HashTableTree<K, T>::search(K key) {
+        size_t index = hash_function(key) % _size;
+        AVLNode<K, T>* node = search(_data[index], key);
+        return node ? &node->_value : nullptr;
+    }
+
+    template<typename K, typename T>
+    bool HashTableTree<K, T>::erase(K key) {
+        size_t index = hash_function(key) % _size;
+        if (_data[index]) {
+            _data[index] = deleteNode(_data[index], key);
+            _count--;
+            return true;
+        }
+        return false;
+    }
+
+    template<typename K, typename T>
+    int HashTableTree<K, T>::count(K key) {
+        size_t index = hash_function(key) % _size;
+        int count = 0;
+        if (_data[index]) {
+            AVLNode<K, T>* node = search(_data[index], key);
+            while (node) {
+                count++;
+                node = search(node->right, key);
+            }
+        }
+        return count;
+    }
+
+    template<typename K, typename T>
+    int HashTableTree<K, T>::get_count() {
+        return _count;
+    }
+
+    template<typename K, typename T>
+    int HashTableTree<K, T>::get_size() {
+        return _size;
+    }
+
+    template<typename K, typename T>
+    void HashTableTree<K, T>::enable_rehashing() {
+        rehashing_enabled = true;
+    }
+
+    template<typename K, typename T>
+    void HashTableTree<K, T>::disable_rehashing() {
+        rehashing_enabled = false;
+    }
+}
+
