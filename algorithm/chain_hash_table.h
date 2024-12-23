@@ -191,20 +191,25 @@ namespace ListHashTable {
 
     template<typename K, typename T>
     T* HashTableList<K, T>::search(K key) {
-        size_t index = hash_function(key);
+        // Гарантируем, что индекс всегда в пределах размера массива
+        size_t index = hash_function(key) % _size;
+
+        // Проверяем, заполнен ли элемент
         if (!_data[index]._filled) {
             return nullptr;
         }
-        else {
-            HashPair<K, T>* temp = &_data[index];
-            while (temp) {
-                if (temp->_key == key) {
-                    return &temp->_value;
-                }
-                temp = temp->_next;
+
+        // Перебираем связный список в указанной ячейке
+        HashPair<K, T>* temp = &_data[index];
+        while (temp) {
+            if (temp->_key == key) {
+                return &temp->_value; // Возвращаем указатель на значение
             }
-            return nullptr;
+            temp = temp->_next;
         }
+
+        // Если элемент не найден, возвращаем nullptr
+        return nullptr;
     }
 
     template<typename K, typename T>
@@ -651,4 +656,3 @@ namespace TreeHashTable {
         rehashing_enabled = false;
     }
 }
-
