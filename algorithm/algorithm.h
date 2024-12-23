@@ -61,16 +61,29 @@ namespace algorithm {
 	}
 
 	template<typename K, typename T>
-	HashTable<K, T>::~HashTable()
-	{
-		_data.clear();
-		_count = 0;
-		_size = 0;
+	HashTable<K, T>::~HashTable() {
+		for (size_t i = 0; i < _size; ++i) {
+			HashPair<K, T>* current = _data[i]._next;
+			while (current) {
+				HashPair<K, T>* to_delete = current;
+				current = current->_next;
+				delete to_delete;
+			}
+			_data[i]._next = nullptr;
+		}
 	}
 
+
 	template<typename K, typename T>
-	HashTable<K, T>::HashTable(const HashTable& other) : _data(other._data), _size(other._size), _count(other._count)
-	{
+	HashTable<K, T>::HashTable(const HashTable& other) : _size(other._size), _count(other._count) {
+		_data.resize(_size);
+		for (size_t i = 0; i < _size; ++i) {
+			HashPair<K, T>* current = other._data[i]._next;
+			while (current) {
+				insert(current->_key, current->_value);
+				current = current->_next;
+			}
+		}
 	}
 
 	template<typename K, typename T>
@@ -169,27 +182,31 @@ namespace algorithm {
 		size_t index = hash_function(key);
 		HashPair<K, T>* current = &_data[index];
 		HashPair<K, T>* prev = nullptr;
+
 		while (current) {
 			if (current->_key == key) {
 				if (prev) {
 					prev->_next = current->_next;
-					delete current;
+					delete current;  
 				}
 				else {
 					if (current->_next) {
-						_data[index] = *current->_next;
-						delete current->_next;
+						HashPair<K, T>* next = current->_next;
+						_data[index] = *next;
+						delete next;
 					}
 					else {
 						_data[index] = HashPair<K, T>();
 					}
+					delete current;
+
 				}
 				return true;
 			}
 			prev = current;
 			current = current->_next;
 		}
-		return false;
+		return false;  
 	}
 
 
@@ -210,9 +227,29 @@ namespace algorithm {
 		if (this == &other) {
 			return *this;
 		}
-		_data.clear();
+
+		for (size_t i = 0; i < _size; ++i) {
+			HashPair<K, T>* current = _data[i]._next;
+			while (current) {
+				HashPair<K, T>* to_delete = current;
+				current = current->_next;
+				delete to_delete;
+			}
+			_data[i]._next = nullptr;
+		}
+
+		_size = other._size;
 		_count = other._count;
-		_data = other._data;
+		_data.resize(_size);
+
+		for (size_t i = 0; i < _size; ++i) {
+			HashPair<K, T>* current = other._data[i]._next;
+			while (current) {
+				insert(current->_key, current->_value);
+				current = current->_next;
+			}
+		}
+
 		return *this;
 	}
 
