@@ -5,6 +5,8 @@
 
 using namespace std;
 
+
+
 template <typename K>
 size_t base_hash_function(K key) {
     size_t a = 2654435761;
