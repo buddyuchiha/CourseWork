@@ -8,72 +8,71 @@ using namespace std;
 using namespace ListHashTable;
 using namespace TreeHashTable;
 using namespace LinearHashTable;
+using namespace DoubleHashTable;
 
 
 int main() {
-    // Данные для тестирования
-    vector<int> int_keys = { 1, 2, 11, 21, 31, 42 };
-    vector<string> string_keys = { "apple", "banana", "grape", "orange", "peach", "plum" };
+    // Создание таблицы с двойным хэшированием
+    HashTableDouble<int, string> table(10, base_hash_function<int>, murmur_hash<int>);
 
-    // Проверяем целочисленные хэш-функции
-    cout << "Testing integer hash functions:\n";
+    cout << "=== Testing HashTableDouble ===\n";
 
-    // base_hash_function
-    cout << "Base hash function:\n";
-    HashTableLinear<int, string> int_table1(10, base_hash_function<int>);
-    for (size_t i = 0; i < int_keys.size(); ++i) {
-        int_table1.insert(int_keys[i], "Value_" + to_string(int_keys[i]));
+    // 1. Тестирование insert()
+    cout << "Inserting elements...\n";
+    table.insert(1, "One");
+    table.insert(2, "Two");
+    table.insert(11, "Eleven"); // Коллизия
+    table.insert(21, "Twenty-One"); // Коллизия
+    table.insert(31, "Thirty-One"); // Коллизия
+    table.print();
+
+    // 2. Тестирование search()
+    cout << "\nSearching for keys:\n";
+    for (int key : {1, 11, 21, 42}) {
+        string* result = table.search(key);
+        if (result) {
+            cout << "Key " << key << " found with value: " << *result << "\n";
+        }
+        else {
+            cout << "Key " << key << " not found.\n";
+        }
     }
-    int_table1.print();
-    cout << "Collisions: " << int_table1.get_count() << "\n\n";
 
-    // murmur_hash
-    cout << "Murmur hash:\n";
-    HashTableLinear<int, string> int_table2(10, murmur_hash<int>);
-    for (size_t i = 0; i < int_keys.size(); ++i) {
-        int_table2.insert(int_keys[i], "Value_" + to_string(int_keys[i]));
+    // 3. Тестирование contains()
+    cout << "\nChecking if values exist:\n";
+    for (string value : {"Two", "Twenty-One", "Thirty-Two"}) {
+        if (table.contains(value)) {
+            cout << "Value '" << value << "' exists in the table.\n";
+        }
+        else {
+            cout << "Value '" << value << "' does not exist in the table.\n";
+        }
     }
-    int_table2.print();
-    cout << "Collisions: " << int_table2.get_count() << "\n\n";
 
-    // fnv1a_hash
-    cout << "FNV-1a hash:\n";
-    HashTableLinear<int, string> int_table3(10, fnv1a_hash<int>);
-    for (size_t i = 0; i < int_keys.size(); ++i) {
-        int_table3.insert(int_keys[i], "Value_" + to_string(int_keys[i]));
+    // 4. Тестирование insert_or_assign()
+    cout << "\nInserting or assigning new values for existing keys:\n";
+    table.insert_or_assign(2, "Second");
+    table.insert_or_assign(21, "Updated-Twenty-One");
+    table.print();
+
+    // 5. Тестирование erase()
+    cout << "\nErasing keys:\n";
+    for (int key : {1, 21, 42}) {
+        if (table.erase(key)) {
+            cout << "Key " << key << " erased successfully.\n";
+        }
+        else {
+            cout << "Key " << key << " not found.\n";
+        }
     }
-    int_table3.print();
-    cout << "Collisions: " << int_table3.get_count() << "\n\n";
+    table.print();
 
-    // Проверяем строковые хэш-функции
-    cout << "Testing string hash functions:\n";
+    // 6. Тестирование get_count()
+    cout << "\nNumber of collisions: " << table.get_count() << "\n";
 
-    // sdbm_hash
-    cout << "SDBM hash:\n";
-    HashTableLinear<string, int> string_table1(10, sdbm_hash);
-    for (size_t i = 0; i < string_keys.size(); ++i) {
-        string_table1.insert(string_keys[i], i + 1);
-    }
-    string_table1.print();
-    cout << "Collisions: " << string_table1.get_count() << "\n\n";
-
-    // djb2_hash
-    cout << "DJB2 hash:\n";
-    HashTableLinear<string, int> string_table2(10, djb2_hash);
-    for (size_t i = 0; i < string_keys.size(); ++i) {
-        string_table2.insert(string_keys[i], i + 1);
-    }
-    string_table2.print();
-    cout << "Collisions: " << string_table2.get_count() << "\n\n";
-
-    // city_hash
-    cout << "City hash:\n";
-    HashTableLinear<string, int> string_table3(10, city_hash);
-    for (size_t i = 0; i < string_keys.size(); ++i) {
-        string_table3.insert(string_keys[i], i + 1);
-    }
-    string_table3.print();
-    cout << "Collisions: " << string_table3.get_count() << "\n\n";
+    // 7. Тестирование get_size() и count()
+    cout << "\nTable size: " << table.get_size() << "\n";
+    cout << "Number of elements in the table: " << table.count() << "\n";
 
     return 0;
 }
