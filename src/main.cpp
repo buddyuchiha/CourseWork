@@ -1,8 +1,7 @@
-#include <iostream>
+п»ї#include <iostream>
 #include <vector>
 #include <chrono>
-#include <iomanip> // Для форматирования вывода времени
-#include <fstream> // Для записи в файл
+#include <iomanip> // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 #include "..\algorithm\chain_hash_table.h"
 #include "..\algorithm\adress_hash_table.h"
 #include "..\algorithm\cuckoo_hash_table.h"
@@ -15,7 +14,7 @@ using namespace CuckooHashTable;
 using namespace ListHashTable;
 using namespace TreeHashTable;
 
-// Функция для генерации случайных данных
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 vector<pair<int, int>> generate_random_data(size_t n, int key_min = 1, int key_max = 1000000, int value_min = 1, int value_max = 1000000) {
     vector<pair<int, int>> data;
     for (size_t i = 0; i < n; ++i) {
@@ -26,26 +25,12 @@ vector<pair<int, int>> generate_random_data(size_t n, int key_min = 1, int key_m
     return data;
 }
 
-// Функция для записи данных в файл
-void write_to_file(const string& filename, const string& data) {
-    ofstream file(filename, ios::app); // Режим добавления
-    if (!file.is_open()) {
-        cerr << "Ошибка: не удалось открыть файл " << filename << " для записи.\n";
-        return;
-    }
-    file << data << endl;
-    file.close();
-}
-
-// Тест скорости вставки с добавлением HashTableTree
-void test_insertion_speed(const vector<size_t>& sizes, const string& filename) {
+// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ HashTableTree
+void test_insertion_speed(vector<size_t> sizes) {
     using namespace chrono;
 
-    write_to_file(filename, "Тест скорости вставки:\n");
-
     for (size_t N : sizes) {
-        stringstream results;
-        results << "Количество элементов: " << N << "\n";
+        cout << "Testing insertion speed for N = " << N << "\n";
         auto data = generate_random_data(N);
 
         // LinearHashTable
@@ -55,8 +40,9 @@ void test_insertion_speed(const vector<size_t>& sizes, const string& filename) {
             linear_table.insert(key, value);
         }
         auto end = high_resolution_clock::now();
-        results << "LinearHashTable: " << fixed << setprecision(3)
-            << duration<double, milli>(end - start).count() << " ms\n";
+        cout << "LinearHashTable Insertion Time: "
+            << fixed << setprecision(3)
+            << duration<double, milli>(end - start).count() << "ms\n";
 
         // DoubleHashTable
         HashTableDouble<int, int> double_table(10000, base_hash_function<int>, murmur_hash<int>);
@@ -65,10 +51,11 @@ void test_insertion_speed(const vector<size_t>& sizes, const string& filename) {
             double_table.insert(key, value);
         }
         end = high_resolution_clock::now();
-        results << "DoubleHashTable: " << fixed << setprecision(3)
-            << duration<double, milli>(end - start).count() << " ms\n";
+        cout << "DoubleHashTable Insertion Time: "
+            << fixed << setprecision(3)
+            << duration<double, milli>(end - start).count() << "ms\n";
 
-        // CuckooHashTable
+        // CuckooHashTable (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ 10,000 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
         if (N <= 10000) {
             HashTableCuckoo<int, int> cuckoo_table(10000, base_hash_function<int>, murmur_hash<int>);
             start = high_resolution_clock::now();
@@ -77,52 +64,135 @@ void test_insertion_speed(const vector<size_t>& sizes, const string& filename) {
                     cuckoo_table.insert(key, value);
                 }
                 catch (const runtime_error& e) {
-                    results << "Ошибка CuckooHashTable: " << e.what() << "\n";
+                    cout << "Error during CuckooHashTable insertion: " << e.what() << "\n";
                     break;
                 }
             }
             end = high_resolution_clock::now();
-            results << "CuckooHashTable: " << fixed << setprecision(3)
-                << duration<double, milli>(end - start).count() << " ms\n";
+            cout << "CuckooHashTable Insertion Time: "
+                << fixed << setprecision(3)
+                << duration<double, milli>(end - start).count() << "ms\n";
         }
         else {
-            results << "CuckooHashTable: Пропущено (лимит 10,000 элементов).\n";
+            cout << "CuckooHashTable skipped for N = " << N << " (limit 20,000 elements).\n";
         }
 
-        // HashTableList
+        // HashTableList (Linked List)
         HashTableList<int, int> list_table(10000);
         start = high_resolution_clock::now();
         for (const auto& [key, value] : data) {
             list_table.insert(key, value);
         }
         end = high_resolution_clock::now();
-        results << "HashTableList: " << fixed << setprecision(3)
-            << duration<double, milli>(end - start).count() << " ms\n";
+        cout << "HashTableList Insertion Time: "
+            << fixed << setprecision(3)
+            << duration<double, milli>(end - start).count() << "ms\n";
 
-        // HashTableTree
+        // HashTableTree (AVL Tree)
         HashTableTree<int, int> tree_table(10000, base_hash_function<int>);
         start = high_resolution_clock::now();
         for (const auto& [key, value] : data) {
             tree_table.insert(key, value);
         }
         end = high_resolution_clock::now();
-        results << "HashTableTree: " << fixed << setprecision(3)
-            << duration<double, milli>(end - start).count() << " ms\n";
-
-        results << "\n";
-        write_to_file(filename, results.str());
+        cout << "HashTableTree Insertion Time: "
+            << fixed << setprecision(3)
+            << duration<double, milli>(end - start).count() << "ms\n\n";
     }
 }
 
-// Тест скорости поиска с добавлением HashTableTree
-void test_search_speed(const vector<size_t>& sizes, const string& filename) {
+// РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ СЃРєРѕСЂРѕСЃС‚Рё СѓРґР°Р»РµРЅРёСЏ РґР»СЏ СЂР°Р·РЅС‹С… С…РµС€-С‚Р°Р±Р»РёС†
+void test_erase_speed(vector<size_t> sizes) {
     using namespace chrono;
 
-    write_to_file(filename, "Тест скорости поиска:\n");
+    for (size_t N : sizes) {
+        cout << "Testing erase speed for N = " << N << "\n";
+        auto data = generate_random_data(N);
+
+        // LinearHashTable
+        HashTableLinear<int, int> linear_table(10000);
+        for (const auto& [key, value] : data) {
+            linear_table.insert(key, value);
+        }
+        auto start = high_resolution_clock::now();
+        for (const auto& [key, value] : data) {
+            linear_table.erase(key);
+        }
+        auto end = high_resolution_clock::now();
+        cout << "LinearHashTable Erase Time: "
+            << fixed << setprecision(3)
+            << duration<double, milli>(end - start).count() << "ms\n";
+
+        // DoubleHashTable
+        HashTableDouble<int, int> double_table(10000, base_hash_function<int>, murmur_hash<int>);
+        for (const auto& [key, value] : data) {
+            double_table.insert(key, value);
+        }
+        start = high_resolution_clock::now();
+        for (const auto& [key, value] : data) {
+            double_table.erase(key);
+        }
+        end = high_resolution_clock::now();
+        cout << "DoubleHashTable Erase Time: "
+            << fixed << setprecision(3)
+            << duration<double, milli>(end - start).count() << "ms\n";
+
+        // CuckooHashTable
+        if (N <= 10000) {
+            HashTableCuckoo<int, int> cuckoo_table(10000, base_hash_function<int>, murmur_hash<int>);
+            for (const auto& [key, value] : data) {
+                cuckoo_table.insert(key, value);
+            }
+            start = high_resolution_clock::now();
+            for (const auto& [key, value] : data) {
+                cuckoo_table.erase(key);
+            }
+            end = high_resolution_clock::now();
+            cout << "CuckooHashTable Erase Time: "
+                << fixed << setprecision(3)
+                << duration<double, milli>(end - start).count() << "ms\n";
+        }
+        else {
+            cout << "CuckooHashTable skipped for N = " << N << " (limit 20,000 elements).\n";
+        }
+
+        // HashTableList
+        HashTableList<int, int> list_table(10000);
+        for (const auto& [key, value] : data) {
+            list_table.insert(key, value);
+        }
+        start = high_resolution_clock::now();
+        for (const auto& [key, value] : data) {
+            list_table.erase(key);
+        }
+        end = high_resolution_clock::now();
+        cout << "HashTableList Erase Time: "
+            << fixed << setprecision(3)
+            << duration<double, milli>(end - start).count() << "ms\n";
+
+        // HashTableTree (AVL Tree)
+        HashTableTree<int, int> tree_table(10000, base_hash_function<int>);
+        for (const auto& [key, value] : data) {
+            tree_table.insert(key, value);
+        }
+        start = high_resolution_clock::now();
+        for (const auto& [key, value] : data) {
+            tree_table.erase(key);
+        }
+        end = high_resolution_clock::now();
+        cout << "HashTableTree Erase Time: "
+            << fixed << setprecision(3)
+            << duration<double, milli>(end - start).count() << "ms\n\n";
+    }
+}
+
+
+// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ HashTableTree
+void test_search_speed(vector<size_t> sizes) {
+    using namespace chrono;
 
     for (size_t N : sizes) {
-        stringstream results;
-        results << "Количество элементов: " << N << "\n";
+        cout << "Testing search speed for N = " << N << "\n";
         auto data = generate_random_data(N);
         vector<int> search_keys;
         for (size_t i = 0; i < N / 2; ++i) {
@@ -142,8 +212,9 @@ void test_search_speed(const vector<size_t>& sizes, const string& filename) {
             linear_table.search(key);
         }
         auto end = high_resolution_clock::now();
-        results << "LinearHashTable: " << fixed << setprecision(3)
-            << duration<double, milli>(end - start).count() << " ms\n";
+        cout << "LinearHashTable Search Time: "
+            << fixed << setprecision(3)
+            << duration<double, milli>(end - start).count() << "ms\n";
 
         // DoubleHashTable
         HashTableDouble<int, int> double_table(10000, base_hash_function<int>, murmur_hash<int>);
@@ -155,10 +226,11 @@ void test_search_speed(const vector<size_t>& sizes, const string& filename) {
             double_table.search(key);
         }
         end = high_resolution_clock::now();
-        results << "DoubleHashTable: " << fixed << setprecision(3)
-            << duration<double, milli>(end - start).count() << " ms\n";
+        cout << "DoubleHashTable Search Time: "
+            << fixed << setprecision(3)
+            << duration<double, milli>(end - start).count() << "ms\n";
 
-        // CuckooHashTable
+        // CuckooHashTable (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ 10,000 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
         if (N <= 10000) {
             HashTableCuckoo<int, int> cuckoo_table(10000, base_hash_function<int>, murmur_hash<int>);
             for (const auto& [key, value] : data) {
@@ -169,11 +241,12 @@ void test_search_speed(const vector<size_t>& sizes, const string& filename) {
                 cuckoo_table.search(key);
             }
             end = high_resolution_clock::now();
-            results << "CuckooHashTable: " << fixed << setprecision(3)
-                << duration<double, milli>(end - start).count() << " ms\n";
+            cout << "CuckooHashTable Search Time: "
+                << fixed << setprecision(3)
+                << duration<double, milli>(end - start).count() << "ms\n";
         }
         else {
-            results << "CuckooHashTable: Пропущено (лимит 10,000 элементов).\n";
+            cout << "CuckooHashTable skipped for N = " << N << " (limit 20,000 elements).\n";
         }
 
         // HashTableList
@@ -186,10 +259,11 @@ void test_search_speed(const vector<size_t>& sizes, const string& filename) {
             list_table.search(key);
         }
         end = high_resolution_clock::now();
-        results << "HashTableList: " << fixed << setprecision(3)
-            << duration<double, milli>(end - start).count() << " ms\n";
+        cout << "HashTableList Search Time: "
+            << fixed << setprecision(3)
+            << duration<double, milli>(end - start).count() << "ms\n";
 
-        // HashTableTree
+        // HashTableTree (AVL Tree)
         HashTableTree<int, int> tree_table(10000, base_hash_function<int>);
         for (const auto& [key, value] : data) {
             tree_table.insert(key, value);
@@ -199,23 +273,23 @@ void test_search_speed(const vector<size_t>& sizes, const string& filename) {
             tree_table.search(key);
         }
         end = high_resolution_clock::now();
-        results << "HashTableTree: " << fixed << setprecision(3)
-            << duration<double, milli>(end - start).count() << " ms\n";
-
-        results << "\n";
-        write_to_file(filename, results.str());
+        cout << "HashTableTree Search Time: "
+            << fixed << setprecision(3)
+            << duration<double, milli>(end - start).count() << "ms\n\n";
     }
 }
 
 int main() {
-    vector<size_t> sizes = { 1000, 5000, 10000, 20000, 50000 }; // Лимит для CuckooHashTable
-    string filename = "C:\\Users\\buddy\\OneDrive\\Рабочий стол\\курсовая\\results\\test_results.txt";
+    vector<size_t> sizes = { 1000, 5000, 10000, 20000, 50000 }; // РџСЂРёРјРµСЂРЅС‹Рµ СЂР°Р·РјРµСЂС‹ РґР»СЏ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ
 
+    cout << "Starting Insertion Speed Test:\n";
+    test_insertion_speed(sizes);
 
-    test_insertion_speed(sizes, filename);
-    test_search_speed(sizes, filename);
+    cout << "\nStarting Search Speed Test:\n";
+    test_search_speed(sizes);
 
-    cout << "Результаты записаны в файл: " << filename << endl;
+    cout << "\nStarting Erase Speed Test:\n";
+    test_erase_speed(sizes);  // РќРѕРІС‹Р№ С‚РµСЃС‚ РЅР° СѓРґР°Р»РµРЅРёРµ
 
     return 0;
 }

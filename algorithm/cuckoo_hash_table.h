@@ -1,3 +1,4 @@
+#pragma once
 #include <stdio.h>
 #include <vector>
 #include "..\algorithm\hash_functions.h"
@@ -18,66 +19,35 @@ namespace CuckooHashTable {
 
     public:
         HashTableCuckoo(size_t size, size_t(*hash1)(K), size_t(*hash2)(K));
-        void insert(K key, T value);
-        void insert_cuckoo(K key, T value, int table_id, int depth); // Добавлен четвёртый аргумент depth
-        T* search(K key);
-        bool erase(K key);
-        void print();
-        void insert_or_assign(K key, T value);
-        int count(K key);
-        bool contains(K key);
-        int get_count();
-        int get_size();
+        void insert(const K& key, const T& value);
+        void insert_cuckoo(const K& key, const T& value, int table_id, int depth);
+        T* search(const K& key) const;
+        bool erase(const K& key);
+        void print() const;
+        void insert_or_assign(const K& key, const T& value);
+        int count(const K& key) const;
+        bool contains(const K& key) const;
+        int get_count() const;
+        int get_size() const;
         void rehash();
     };
 
     template <typename K, typename T>
-    void HashTableCuckoo<K, T>::rehash() {
-        size_t new_size = _size1 * 2;
-        vector<K> old_keys1 = std::move(_keys1);
-        vector<T> old_values1 = std::move(_values1);
-        vector<K> old_keys2 = std::move(_keys2);
-        vector<T> old_values2 = std::move(_values2);
-
-        _keys1.resize(new_size, K());
-        _values1.resize(new_size, T());
-        _keys2.resize(new_size, K());
-        _values2.resize(new_size, T());
-
-        _size1 = _size2 = new_size;
-        _count1 = _count2 = 0;
-
-        // Вставляем старые элементы в новые таблицы
-        for (size_t i = 0; i < old_keys1.size(); ++i) {
-            if (old_keys1[i] != K()) {
-                insert_cuckoo(old_keys1[i], old_values1[i], 1, 0); // Передаем необходимые аргументы
-            }
-        }
-        for (size_t i = 0; i < old_keys2.size(); ++i) {
-            if (old_keys2[i] != K()) {
-                insert_cuckoo(old_keys2[i], old_values2[i], 2, 0); // Передаем необходимые аргументы
-            }
-        }
-    }
-
-    template <typename K, typename T>
     HashTableCuckoo<K, T>::HashTableCuckoo(size_t size, size_t(*hash1)(K), size_t(*hash2)(K))
-        : _size1(size), _size2(size), hash_function_1(hash1), hash_function_2(hash2), _count1(0), _count2(0) {
+        : _size1(size), _size2(size), _count1(0), _count2(0), hash_function_1(hash1), hash_function_2(hash2) {
         _keys1.resize(_size1, K());
         _values1.resize(_size1, T());
         _keys2.resize(_size2, K());
         _values2.resize(_size2, T());
     }
 
-    // Исправление: передаем все 4 аргумента в insert_cuckoo
     template <typename K, typename T>
-    void HashTableCuckoo<K, T>::insert(K key, T value) {
-        insert_cuckoo(key, value, 1, 0); // Передаем аргументы, как требуется
+    void HashTableCuckoo<K, T>::insert(const K& key, const T& value) {
+        insert_cuckoo(key, value, 1, 0);
     }
 
-    // Основной метод для вставки с учетом "кукушкиного" хеширования
     template <typename K, typename T>
-    void HashTableCuckoo<K, T>::insert_cuckoo(K key, T value, int table_id, int depth) {
+    void HashTableCuckoo<K, T>::insert_cuckoo(const K& key, const T& value, int table_id, int depth) {
         if (depth > _size1 + _size2) {
             rehash();
             insert(key, value);
@@ -100,7 +70,7 @@ namespace CuckooHashTable {
             _values1[index] = value;
 
             if (evicted_key != K()) {
-                insert_cuckoo(evicted_key, evicted_value, 2, depth + 1); // Здесь передаем все аргументы
+                insert_cuckoo(evicted_key, evicted_value, 2, depth + 1);
             }
         }
         else {
@@ -118,28 +88,28 @@ namespace CuckooHashTable {
             _values2[index] = value;
 
             if (evicted_key != K()) {
-                insert_cuckoo(evicted_key, evicted_value, 1, depth + 1); // Передаем все аргументы
+                insert_cuckoo(evicted_key, evicted_value, 1, depth + 1);
             }
         }
     }
 
     template <typename K, typename T>
-    T* HashTableCuckoo<K, T>::search(K key) {
+    T* HashTableCuckoo<K, T>::search(const K& key) const {
         size_t index = hash_function_1(key) % _size1;
         if (_keys1[index] == key) {
-            return &_values1[index];
+            return const_cast<T*>(&_values1[index]);
         }
 
         index = hash_function_2(key) % _size2;
         if (_keys2[index] == key) {
-            return &_values2[index];
+            return const_cast<T*>(&_values2[index]);
         }
 
         return nullptr;
     }
 
     template <typename K, typename T>
-    bool HashTableCuckoo<K, T>::erase(K key) {
+    bool HashTableCuckoo<K, T>::erase(const K& key) {
         size_t index = hash_function_1(key) % _size1;
         if (_keys1[index] == key) {
             _keys1[index] = K();
@@ -160,7 +130,7 @@ namespace CuckooHashTable {
     }
 
     template <typename K, typename T>
-    void HashTableCuckoo<K, T>::print() {
+    void HashTableCuckoo<K, T>::print() const {
         cout << "Table 1: " << endl;
         for (size_t i = 0; i < _size1; ++i) {
             if (_keys1[i] != K()) {
@@ -177,12 +147,12 @@ namespace CuckooHashTable {
     }
 
     template <typename K, typename T>
-    void HashTableCuckoo<K, T>::insert_or_assign(K key, T value) {
-        insert_cuckoo(key, value, 1, 0); // Передаем все аргументы
+    void HashTableCuckoo<K, T>::insert_or_assign(const K& key, const T& value) {
+        insert_cuckoo(key, value, 1, 0);
     }
 
     template <typename K, typename T>
-    int HashTableCuckoo<K, T>::count(K key) {
+    int HashTableCuckoo<K, T>::count(const K& key) const {
         int count = 0;
         size_t index = hash_function_1(key) % _size1;
         if (_keys1[index] == key) {
@@ -198,27 +168,45 @@ namespace CuckooHashTable {
     }
 
     template <typename K, typename T>
-    bool HashTableCuckoo<K, T>::contains(K key) {
-        size_t index = hash_function_1(key) % _size1;
-        if (_keys1[index] == key) {
-            return true;
-        }
-
-        index = hash_function_2(key) % _size2;
-        if (_keys2[index] == key) {
-            return true;
-        }
-
-        return false;
+    bool HashTableCuckoo<K, T>::contains(const K& key) const {
+        return search(key) != nullptr;
     }
 
     template <typename K, typename T>
-    int HashTableCuckoo<K, T>::get_count() {
+    int HashTableCuckoo<K, T>::get_count() const {
         return _count1 + _count2;
     }
 
     template <typename K, typename T>
-    int HashTableCuckoo<K, T>::get_size() {
+    int HashTableCuckoo<K, T>::get_size() const {
         return _size1;
+    }
+
+    template <typename K, typename T>
+    void HashTableCuckoo<K, T>::rehash() {
+        size_t new_size = _size1 * 2;
+        vector<K> old_keys1 = std::move(_keys1);
+        vector<T> old_values1 = std::move(_values1);
+        vector<K> old_keys2 = std::move(_keys2);
+        vector<T> old_values2 = std::move(_values2);
+
+        _keys1.resize(new_size, K());
+        _values1.resize(new_size, T());
+        _keys2.resize(new_size, K());
+        _values2.resize(new_size, T());
+
+        _size1 = _size2 = new_size;
+        _count1 = _count2 = 0;
+
+        for (size_t i = 0; i < old_keys1.size(); ++i) {
+            if (old_keys1[i] != K()) {
+                insert_cuckoo(old_keys1[i], old_values1[i], 1, 0);
+            }
+        }
+        for (size_t i = 0; i < old_keys2.size(); ++i) {
+            if (old_keys2[i] != K()) {
+                insert_cuckoo(old_keys2[i], old_values2[i], 2, 0);
+            }
+        }
     }
 }

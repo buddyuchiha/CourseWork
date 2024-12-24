@@ -214,7 +214,7 @@ namespace ListHashTable {
 
     template<typename K, typename T>
     bool HashTableList<K, T>::erase(K key) {
-        size_t index = hash_function(key);
+        size_t index = hash_function(key) ? _size;
         HashPair<K, T>* current = &_data[index];
         HashPair<K, T>* prev = nullptr;
 
