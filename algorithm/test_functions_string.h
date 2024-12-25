@@ -16,22 +16,6 @@ using namespace CuckooHashTable; // Кукушкина хэш-таблица
 using namespace ListHashTable;   // Метод цепочек (список)
 using namespace TreeHashTable;   // Метод цепочек (AVL-дерево)
 using namespace chrono;          // Для измерения времени
-#pragma once
-#include <iostream>
-#include <vector>
-#include <chrono>
-#include <iomanip>
-#include <fstream>
-#include "..\algorithm\chain_hash_table.h"
-#include "..\algorithm\adress_hash_table.h"
-#include "..\algorithm\cuckoo_hash_table.h"
-#include "..\algorithm\hash_functions.h"
-
-using namespace std;
-using namespace ListHashTable;   // Метод цепочек (список)
-using namespace TreeHashTable;   // Метод цепочек (AVL-дерево)
-using namespace CuckooHashTable; // Кукушкина хэш-таблица
-using namespace chrono;          // Для измерения времени
 
 namespace StringTests {
 

@@ -119,20 +119,16 @@ namespace LinearHashTable {
 
     template <typename K, typename T>
     size_t HashTableLinear<K, T>::get_count() {
-        size_t collision_count = 0;
+        size_t filled_slots = 0;
 
+        // Проходим по всем слотам
         for (size_t i = 0; i < _size; i++) {
             if (_data[i]._filled) {
-                size_t index = hash_function(_data[i]._key) % _size;
-                size_t i = 1;
-                while (_data[(index + i) % _size]._filled) {
-                    collision_count++;
-                    i++;
-                }
+                filled_slots++;
             }
         }
 
-        return collision_count;
+        return filled_slots;
     }
 
     template <typename K, typename T>
@@ -302,22 +298,18 @@ namespace DoubleHashTable {
 
     template <typename K, typename T>
     size_t HashTableDouble<K, T>::get_count() {
-        size_t collision_count = 0;
+        size_t filled_slots = 0;
 
+        // Проходим по всем слотам
         for (size_t i = 0; i < _size; i++) {
             if (_data[i]._filled) {
-                size_t index = hash_function1(_data[i]._key) % _size;
-                size_t step = hash_function2(_data[i]._key);
-                size_t j = 1;
-                while (_data[(index + j * step) % _size]._filled) {
-                    collision_count++;
-                    j++;
-                }
+                filled_slots++;
             }
         }
 
-        return collision_count;
+        return filled_slots;
     }
+
 
     template <typename K, typename T>
     T* HashTableDouble<K, T>::search(K key) {

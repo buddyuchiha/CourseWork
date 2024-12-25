@@ -185,8 +185,25 @@ namespace CuckooHashTable {
 
     template <typename K, typename T>
     int HashTableCuckoo<K, T>::get_count() const {
-        return _count1 + _count2;
+        int filled_buckets = 0;
+
+        // Подсчёт заполненных корзин в первой таблице
+        for (size_t i = 0; i < _size1; ++i) {
+            if (_keys1[i] != K()) { // Если ключ не равен значению по умолчанию (пустой)
+                filled_buckets++;
+            }
+        }
+
+        // Подсчёт заполненных корзин во второй таблице
+        for (size_t i = 0; i < _size2; ++i) {
+            if (_keys2[i] != K()) { // Если ключ не равен значению по умолчанию (пустой)
+                filled_buckets++;
+            }
+        }
+
+        return filled_buckets;
     }
+
 
     template <typename K, typename T>
     int HashTableCuckoo<K, T>::get_size() const {

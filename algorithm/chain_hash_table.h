@@ -290,13 +290,13 @@ namespace ListHashTable {
 
     template<typename K, typename T>
     int HashTableList<K, T>::get_count() {
-        int count_ = 0;
+        int filled_buckets = 0;
         for (const auto& pair : _data) {
             if (pair._filled) {
-                count_ += count(pair._key) - 1;
+                filled_buckets++;
             }
         }
-        return count_;
+        return filled_buckets;
     }
 
     template<typename K, typename T>
@@ -639,8 +639,15 @@ namespace TreeHashTable {
 
     template<typename K, typename T>
     int HashTableTree<K, T>::get_count() {
-        return _count;
+        int filled_buckets = 0;
+        for (const auto& node : _data) {
+            if (node != nullptr) { 
+                filled_buckets++;
+            }
+        }
+        return filled_buckets;
     }
+
 
     template<typename K, typename T>
     int HashTableTree<K, T>::get_size() {
