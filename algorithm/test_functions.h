@@ -10,12 +10,12 @@
 #include "..\algorithm\hash_functions.h"
 
 using namespace std;
-using namespace LinearHashTable;  // Линейное пробирование
-using namespace DoubleHashTable; // Двойное хэширование
-using namespace CuckooHashTable; // Кукушкина хэш-таблица
-using namespace ListHashTable;   // Метод цепочек (список)
-using namespace TreeHashTable;   // Метод цепочек (AVL-дерево)
-using namespace chrono;          // Для измерения времени
+using namespace LinearHashTable;  
+using namespace DoubleHashTable; 
+using namespace CuckooHashTable; 
+using namespace ListHashTable;   
+using namespace TreeHashTable;   
+using namespace chrono;          
 
 namespace NumberTests {
 
@@ -29,13 +29,11 @@ namespace NumberTests {
         return data;
     }
 
-    // Тестирование вставки
     template <typename HashFunction>
     void test_insertion(ofstream& file, vector<size_t> sizes, HashFunction hash_func, const string& hash_name) {
         for (size_t N : sizes) {
             auto data = generate_random_data(N);
 
-            // LinearHashTable
             HashTableLinear<int, int> linear_table(N, hash_func);
             auto start = high_resolution_clock::now();
             for (const auto& [key, value] : data) {
@@ -45,7 +43,6 @@ namespace NumberTests {
             file << "LinearHashTable," << hash_name << ",Insertion," << N << ","
                 << fixed << setprecision(3) << duration<double, milli>(end - start).count() << "\n";
 
-            // HashTableList
             HashTableList<int, int> list_table(N);
             start = high_resolution_clock::now();
             for (const auto& [key, value] : data) {
@@ -55,7 +52,6 @@ namespace NumberTests {
             file << "HashTableList," << hash_name << ",Insertion," << N << ","
                 << fixed << setprecision(3) << duration<double, milli>(end - start).count() << "\n";
 
-            // HashTableTree
             HashTableTree<int, int> tree_table(N, hash_func);
             start = high_resolution_clock::now();
             for (const auto& [key, value] : data) {
@@ -67,13 +63,11 @@ namespace NumberTests {
         }
     }
 
-    // Тестирование поиска
     template <typename HashFunction>
     void test_search(ofstream& file, vector<size_t> sizes, HashFunction hash_func, const string& hash_name) {
         for (size_t N : sizes) {
             auto data = generate_random_data(N);
 
-            // Создание таблиц и вставка данных
             HashTableLinear<int, int> linear_table(N, hash_func);
             HashTableList<int, int> list_table(N);
             HashTableTree<int, int> tree_table(N, hash_func);
@@ -84,16 +78,14 @@ namespace NumberTests {
                 tree_table.insert(key, value);
             }
 
-            // Генерация ключей для поиска
             vector<int> search_keys;
             for (size_t i = 0; i < N / 2; ++i) {
-                search_keys.push_back(data[i].first); // Существующие ключи
+                search_keys.push_back(data[i].first); 
             }
             for (size_t i = 0; i < N / 2; ++i) {
-                search_keys.push_back(rand() % 1000000); // Несуществующие ключи
+                search_keys.push_back(rand() % 1000000);
             }
 
-            // LinearHashTable
             auto start = high_resolution_clock::now();
             for (const auto& key : search_keys) {
                 linear_table.search(key);
@@ -102,7 +94,6 @@ namespace NumberTests {
             file << "LinearHashTable," << hash_name << ",Search," << N << ","
                 << fixed << setprecision(3) << duration<double, milli>(end - start).count() << "\n";
 
-            // HashTableList
             start = high_resolution_clock::now();
             for (const auto& key : search_keys) {
                 list_table.search(key);
@@ -111,7 +102,6 @@ namespace NumberTests {
             file << "HashTableList," << hash_name << ",Search," << N << ","
                 << fixed << setprecision(3) << duration<double, milli>(end - start).count() << "\n";
 
-            // HashTableTree
             start = high_resolution_clock::now();
             for (const auto& key : search_keys) {
                 tree_table.search(key);
@@ -122,13 +112,11 @@ namespace NumberTests {
         }
     }
 
-    // Тестирование удаления
     template <typename HashFunction>
     void test_erase(ofstream& file, vector<size_t> sizes, HashFunction hash_func, const string& hash_name) {
         for (size_t N : sizes) {
             auto data = generate_random_data(N);
 
-            // LinearHashTable
             HashTableLinear<int, int> linear_table(N, hash_func);
             for (const auto& [key, value] : data) {
                 linear_table.insert(key, value);
@@ -141,7 +129,6 @@ namespace NumberTests {
             file << "LinearHashTable," << hash_name << ",Erase," << N << ","
                 << fixed << setprecision(3) << duration<double, milli>(end - start).count() << "\n";
 
-            // HashTableList
             HashTableList<int, int> list_table(N);
             for (const auto& [key, value] : data) {
                 list_table.insert(key, value);
@@ -154,7 +141,6 @@ namespace NumberTests {
             file << "HashTableList," << hash_name << ",Erase," << N << ","
                 << fixed << setprecision(3) << duration<double, milli>(end - start).count() << "\n";
 
-            // HashTableTree
             HashTableTree<int, int> tree_table(N, hash_func);
             for (const auto& [key, value] : data) {
                 tree_table.insert(key, value);

@@ -10,12 +10,12 @@
 #include "..\algorithm\hash_functions.h"
 
 using namespace std;
-using namespace LinearHashTable;  // Линейное пробирование
-using namespace DoubleHashTable; // Двойное хэширование
-using namespace CuckooHashTable; // Кукушкина хэш-таблица
-using namespace ListHashTable;   // Метод цепочек (список)
-using namespace TreeHashTable;   // Метод цепочек (AVL-дерево)
-using namespace chrono;          // Для измерения времени
+using namespace LinearHashTable;  
+using namespace DoubleHashTable; 
+using namespace CuckooHashTable; 
+using namespace ListHashTable;   
+using namespace TreeHashTable;   
+using namespace chrono;         
 
 namespace LoadTests {
     vector<pair<int, int>> generate_random_data(size_t n, int key_min = 1, int key_max = 1000000, int value_min = 1, int value_max = 1000000) {
@@ -28,7 +28,6 @@ namespace LoadTests {
         return data;
     }
 
-    // Test for single hash function tables (Linear, List, Tree)
     template <typename HashFunction>
     void test_load_factor(
         ofstream& file,
@@ -38,7 +37,6 @@ namespace LoadTests {
         for (size_t N : sizes) {
             auto data = generate_random_data(N);
 
-            // LinearHashTable
             HashTableLinear<int, int> linear_table(N, hash_func);
             for (const auto& [key, value] : data) {
                 linear_table.insert(key, value);
@@ -47,7 +45,6 @@ namespace LoadTests {
             file << "LinearHashTable," << hash_name << "," << N << ","
                 << fixed << setprecision(3) << linear_load_factor << "\n";
 
-            // HashTableList
             HashTableList<int, int> list_table(N);
             for (const auto& [key, value] : data) {
                 list_table.insert(key, value);
@@ -56,7 +53,6 @@ namespace LoadTests {
             file << "HashTableList," << hash_name << "," << N << ","
                 << fixed << setprecision(3) << list_load_factor << "\n";
 
-            // HashTableTree
             HashTableTree<int, int> tree_table(N, hash_func);
             for (const auto& [key, value] : data) {
                 tree_table.insert(key, value);
@@ -67,7 +63,6 @@ namespace LoadTests {
         }
     }
 
-    // Test for tables requiring two hash functions (Cuckoo, Double)
     template <typename HashFunction1, typename HashFunction2>
     void test_load_factor_double(
         ofstream& file,
@@ -79,7 +74,6 @@ namespace LoadTests {
         for (size_t N : sizes) {
             auto data = generate_random_data(N);
 
-            // CuckooHashTable
             HashTableCuckoo<int, int> cuckoo_table(N, hash_func1, hash_func2);
             for (const auto& [key, value] : data) {
                 cuckoo_table.insert(key, value);
@@ -88,7 +82,6 @@ namespace LoadTests {
             file << "CuckooHashTable," << hash_name1 << "," << hash_name2 << "," << N << ","
                 << fixed << setprecision(3) << cuckoo_load_factor << "\n";
 
-            // DoubleHashTable
             HashTableDouble<int, int> double_table(N, hash_func1, hash_func2);
             for (const auto& [key, value] : data) {
                 double_table.insert(key, value);

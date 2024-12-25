@@ -6,7 +6,6 @@
 using namespace std;
 
 
-// numbers
 template <typename K>
 size_t base_hash_function(K key) {
     size_t a = 2654435761;
@@ -23,8 +22,8 @@ size_t murmur_hash(K key) {
     size_t h = seed ^ (sizeof(K) * m);
 
     while (key) {
-        size_t k = key & 0xFF; // Берём последний байт ключа
-        key >>= 8;            // Сдвигаем ключ вправо на 8 бит
+        size_t k = key & 0xFF; 
+        key >>= 8;            
 
         k *= m;
         k ^= k >> r;
@@ -35,7 +34,6 @@ size_t murmur_hash(K key) {
     }
     return h;
 }
-
 
 template <typename K>
 size_t fnv1a_hash(K key) {
@@ -48,7 +46,6 @@ size_t fnv1a_hash(K key) {
     return hash;
 }
 
-// strings
 size_t sdbm_hash(string key) {
     size_t hash = 0;
     for (char c : key) {

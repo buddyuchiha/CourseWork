@@ -7,7 +7,7 @@ using namespace std;
 
 namespace CuckooHashTable {
 
-    const int MAX_DEPTH = 500; // Максимальная глубина переселений
+    const int MAX_DEPTH = 500; 
 
     template <typename K, typename T>
     class HashTableCuckoo {

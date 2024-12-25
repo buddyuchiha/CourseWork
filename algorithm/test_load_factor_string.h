@@ -10,15 +10,14 @@
 #include "..\algorithm\hash_functions.h"
 
 using namespace std;
-using namespace LinearHashTable;  // Линейное пробирование
-using namespace DoubleHashTable; // Двойное хэширование
-using namespace CuckooHashTable; // Кукушкина хэш-таблица
-using namespace ListHashTable;   // Метод цепочек (список)
-using namespace TreeHashTable;   // Метод цепочек (AVL-дерево)
-using namespace chrono;          // Для измерения времени
+using namespace LinearHashTable;  
+using namespace DoubleHashTable; 
+using namespace CuckooHashTable; 
+using namespace ListHashTable;  
+using namespace TreeHashTable;   
+using namespace chrono;          
 
 namespace StringLoadTests {
-    // Генерация случайных строковых данных
     vector<pair<string, int>> generate_random_string_data(size_t n, size_t key_length = 10, int value_min = 1, int value_max = 1000000) {
         random_device rd;
         mt19937 generator(rd());
@@ -39,7 +38,6 @@ namespace StringLoadTests {
         return data;
     }
 
-    // Тестирование коэффициентов заполнения для таблиц с одной хэш-функцией
     template <typename HashFunction>
     void test_load_factor_string(
         ofstream& file,
@@ -49,7 +47,6 @@ namespace StringLoadTests {
         for (size_t N : sizes) {
             auto data = generate_random_string_data(N);
 
-            // LinearHashTable
             HashTableLinear<string, int> linear_table(N, hash_func);
             for (const auto& [key, value] : data) {
                 linear_table.insert(key, value);
@@ -58,7 +55,6 @@ namespace StringLoadTests {
             file << "LinearHashTable," << hash_name << "," << N << ","
                 << fixed << setprecision(3) << linear_load_factor << "\n";
 
-            // HashTableList
             HashTableList<string, int> list_table(N, hash_func);
             for (const auto& [key, value] : data) {
                 list_table.insert(key, value);
@@ -67,7 +63,6 @@ namespace StringLoadTests {
             file << "HashTableList," << hash_name << "," << N << ","
                 << fixed << setprecision(3) << list_load_factor << "\n";
 
-            // HashTableTree
             HashTableTree<string, int> tree_table(N, hash_func);
             for (const auto& [key, value] : data) {
                 tree_table.insert(key, value);
@@ -78,7 +73,6 @@ namespace StringLoadTests {
         }
     }
 
-    // Тестирование коэффициентов заполнения для таблиц с двумя хэш-функциями
     template <typename HashFunction1, typename HashFunction2>
     void test_load_factor_double_string(
         ofstream& file,
@@ -90,7 +84,6 @@ namespace StringLoadTests {
         for (size_t N : sizes) {
             auto data = generate_random_string_data(N);
 
-            // CuckooHashTable
             HashTableCuckoo<string, int> cuckoo_table(N, hash_func1, hash_func2);
             for (const auto& [key, value] : data) {
                 cuckoo_table.insert(key, value);
@@ -99,7 +92,6 @@ namespace StringLoadTests {
             file << "CuckooHashTable," << hash_name1 << "," << hash_name2 << "," << N << ","
                 << fixed << setprecision(3) << cuckoo_load_factor << "\n";
 
-            // DoubleHashTable
             HashTableDouble<string, int> double_table(N, hash_func1, hash_func2);
             for (const auto& [key, value] : data) {
                 double_table.insert(key, value);

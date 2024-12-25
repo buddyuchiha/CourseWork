@@ -10,32 +10,29 @@
 #include "..\algorithm\hash_functions.h"
 
 using namespace std;
-using namespace LinearHashTable;  // Линейное пробирование
-using namespace DoubleHashTable; // Двойное хэширование
-using namespace CuckooHashTable; // Кукушкина хэш-таблица
-using namespace ListHashTable;   // Метод цепочек (список)
-using namespace TreeHashTable;   // Метод цепочек (AVL-дерево)
-using namespace chrono;          // Для измерения времени
-
+using namespace LinearHashTable;  
+using namespace DoubleHashTable; 
+using namespace CuckooHashTable; 
+using namespace ListHashTable;   
+using namespace TreeHashTable;  
+using namespace chrono;          
 namespace StringTests {
 
     vector<pair<string, int>> generate_random_string_data(size_t n, int value_min = 1, int value_max = 1000000) {
         vector<pair<string, int>> data;
         for (size_t i = 0; i < n; ++i) {
-            string key = "key_" + to_string(i);  // Генерация строкового ключа
+            string key = "key_" + to_string(i);  
             int value = rand() % (value_max - value_min + 1) + value_min;
             data.emplace_back(key, value);
         }
         return data;
     }
 
-    // Тестирование вставки
     template <typename HashFunction>
     void test_insertion_string(ofstream& file, vector<size_t> sizes, HashFunction hash_func, const string& hash_name) {
         for (size_t N : sizes) {
             auto data = generate_random_string_data(N);
 
-            // HashTableList
             HashTableList<string, int> list_table(N, hash_func);
             auto start = high_resolution_clock::now();
             for (const auto& [key, value] : data) {
@@ -45,7 +42,6 @@ namespace StringTests {
             file << "HashTableList," << hash_name << ",Insertion," << N << ","
                 << fixed << setprecision(3) << duration<double, milli>(end - start).count() << "\n";
 
-            // HashTableTree
             HashTableTree<string, int> tree_table(N, hash_func);
             start = high_resolution_clock::now();
             for (const auto& [key, value] : data) {
@@ -54,34 +50,42 @@ namespace StringTests {
             end = high_resolution_clock::now();
             file << "HashTableTree," << hash_name << ",Insertion," << N << ","
                 << fixed << setprecision(3) << duration<double, milli>(end - start).count() << "\n";
+            
+            HashTableLinear<string, int> linear_table(N, hash_func);
+            start = high_resolution_clock::now();
+            for (const auto& [key, value] : data) {
+                linear_table.insert(key, value);
+            }
+            end = high_resolution_clock::now();
+            file << "LinearHashTable," << hash_name << ",Insertion," << N << ","
+                << fixed << setprecision(3) << duration<double, milli>(end - start).count() << "\n";
         }
     }
 
-    // Тестирование поиска
     template <typename HashFunction>
     void test_search_string(ofstream& file, vector<size_t> sizes, HashFunction hash_func, const string& hash_name) {
         for (size_t N : sizes) {
             auto data = generate_random_string_data(N);
 
-            // Создание таблиц и вставка данных
             HashTableList<string, int> list_table(N, hash_func);
             HashTableTree<string, int> tree_table(N, hash_func);
+            HashTableLinear<string, int> linear_table(N, hash_func);
 
             for (const auto& [key, value] : data) {
                 list_table.insert(key, value);
                 tree_table.insert(key, value);
+                linear_table.insert(key, value);
+
             }
 
-            // Генерация ключей для поиска
             vector<string> search_keys;
             for (size_t i = 0; i < N / 2; ++i) {
-                search_keys.push_back(data[i].first); // Существующие ключи
+                search_keys.push_back(data[i].first); 
             }
             for (size_t i = 0; i < N / 2; ++i) {
-                search_keys.push_back("key_" + to_string(rand() % 100000)); // Несуществующие ключи
+                search_keys.push_back("key_" + to_string(rand() % 100000));
             }
 
-            // HashTableList
             auto start = high_resolution_clock::now();
             for (const auto& key : search_keys) {
                 list_table.search(key);
@@ -90,7 +94,6 @@ namespace StringTests {
             file << "HashTableList," << hash_name << ",Search," << N << ","
                 << fixed << setprecision(3) << duration<double, milli>(end - start).count() << "\n";
 
-            // HashTableTree
             start = high_resolution_clock::now();
             for (const auto& key : search_keys) {
                 tree_table.search(key);
@@ -98,16 +101,22 @@ namespace StringTests {
             end = high_resolution_clock::now();
             file << "HashTableTree," << hash_name << ",Search," << N << ","
                 << fixed << setprecision(3) << duration<double, milli>(end - start).count() << "\n";
+
+            start = high_resolution_clock::now();
+            for (const auto& key : search_keys) {
+                linear_table.search(key);
+            }
+            end = high_resolution_clock::now();
+            file << "LinearHashTable," << hash_name << ",Search," << N << ","
+                << fixed << setprecision(3) << duration<double, milli>(end - start).count() << "\n";
         }
     }
 
-    // Тестирование удаления
     template <typename HashFunction>
     void test_erase_string(ofstream& file, vector<size_t> sizes, HashFunction hash_func, const string& hash_name) {
         for (size_t N : sizes) {
             auto data = generate_random_string_data(N);
 
-            // HashTableList
             HashTableList<string, int> list_table(N, hash_func);
             for (const auto& [key, value] : data) {
                 list_table.insert(key, value);
@@ -120,7 +129,6 @@ namespace StringTests {
             file << "HashTableList," << hash_name << ",Erase," << N << ","
                 << fixed << setprecision(3) << duration<double, milli>(end - start).count() << "\n";
 
-            // HashTableTree
             HashTableTree<string, int> tree_table(N, hash_func);
             for (const auto& [key, value] : data) {
                 tree_table.insert(key, value);
@@ -131,6 +139,18 @@ namespace StringTests {
             }
             end = high_resolution_clock::now();
             file << "HashTableTree," << hash_name << ",Erase," << N << ","
+                << fixed << setprecision(3) << duration<double, milli>(end - start).count() << "\n";
+
+            HashTableLinear<string, int> linear_table(N, hash_func);
+            for (const auto& [key, value] : data) {
+                linear_table.insert(key, value);
+            }
+            start = high_resolution_clock::now();
+            for (const auto& [key, value] : data) {
+                linear_table.erase(key);
+            }
+            end = high_resolution_clock::now();
+            file << "LinearHashTable," << hash_name << ",Erase," << N << ","
                 << fixed << setprecision(3) << duration<double, milli>(end - start).count() << "\n";
         }
     }
@@ -148,13 +168,11 @@ namespace StringTestsDouble {
         return data;
     }
 
-    // Тестирование вставки для двух хэш-функций
     template <typename HashFunction1, typename HashFunction2>
     void test_insertion_double_string(ofstream& file, vector<size_t> sizes, HashFunction1 hash_func1, HashFunction2 hash_func2, const string& hash_name1, const string& hash_name2) {
         for (size_t N : sizes) {
             auto data = generate_random_string_data(N);
 
-            // CuckooHashTable
             HashTableCuckoo<string, int> cuckoo_table(N, hash_func1, hash_func2);
             auto start = high_resolution_clock::now();
             for (const auto& [key, value] : data) {
@@ -166,13 +184,11 @@ namespace StringTestsDouble {
         }
     }
 
-    // Тестирование поиска для двух хэш-функций
     template <typename HashFunction1, typename HashFunction2>
     void test_search_double_string(ofstream& file, vector<size_t> sizes, HashFunction1 hash_func1, HashFunction2 hash_func2, const string& hash_name1, const string& hash_name2) {
         for (size_t N : sizes) {
             auto data = generate_random_string_data(N);
 
-            // CuckooHashTable
             HashTableCuckoo<string, int> cuckoo_table(N, hash_func1, hash_func2);
             for (const auto& [key, value] : data) {
                 cuckoo_table.insert(key, value);
@@ -196,13 +212,11 @@ namespace StringTestsDouble {
         }
     }
 
-    // Тестирование удаления для двух хэш-функций
     template <typename HashFunction1, typename HashFunction2>
     void test_erase_double_string(ofstream& file, vector<size_t> sizes, HashFunction1 hash_func1, HashFunction2 hash_func2, const string& hash_name1, const string& hash_name2) {
         for (size_t N : sizes) {
             auto data = generate_random_string_data(N);
 
-            // CuckooHashTable
             HashTableCuckoo<string, int> cuckoo_table(N, hash_func1, hash_func2);
             for (const auto& [key, value] : data) {
                 cuckoo_table.insert(key, value);
@@ -220,7 +234,6 @@ namespace StringTestsDouble {
 }
 namespace StringTestsDouble {
 
-    // Генерация случайных строк
     string generate_random_string(size_t length) {
         const string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         random_device rd;
@@ -234,7 +247,6 @@ namespace StringTestsDouble {
         return random_string;
     }
 
-    // Генерация случайных данных (строки в качестве ключей, int в качестве значений)
     vector<pair<string, int>> generate_random_data(size_t n, size_t key_length = 10, int value_min = 1, int value_max = 1000000) {
         random_device rd;
         mt19937 generator(rd());
@@ -249,12 +261,10 @@ namespace StringTestsDouble {
         return data;
     }
 
-    // Тестирование вставки
     void test_insertion_double_string(ofstream& file, vector<size_t> sizes, size_t(*hash_func1)(string), size_t(*hash_func2)(string), const string& hash_name1, const string& hash_name2) {
         for (size_t N : sizes) {
             auto data = generate_random_data(N);
 
-            // DoubleHashTable
             HashTableDouble<string, int> double_table(N, hash_func1, hash_func2);
             auto start = high_resolution_clock::now();
             for (const auto& [key, value] : data) {
@@ -264,7 +274,6 @@ namespace StringTestsDouble {
             file << "DoubleHashTable," << hash_name1 << "," << hash_name2 << ",Insertion," << N << ","
                 << fixed << setprecision(3) << duration<double, milli>(end - start).count() << "\n";
 
-            // CuckooHashTable
             HashTableCuckoo<string, int> cuckoo_table(N, hash_func1, hash_func2);
             start = high_resolution_clock::now();
             for (const auto& [key, value] : data) {
@@ -276,12 +285,10 @@ namespace StringTestsDouble {
         }
     }
 
-    // Тестирование поиска
     void test_search_double_string(ofstream& file, vector<size_t> sizes, size_t(*hash_func1)(string), size_t(*hash_func2)(string), const string& hash_name1, const string& hash_name2) {
         for (size_t N : sizes) {
             auto data = generate_random_data(N);
 
-            // Создание таблиц и вставка данных
             HashTableDouble<string, int> double_table(N, hash_func1, hash_func2);
             HashTableCuckoo<string, int> cuckoo_table(N, hash_func1, hash_func2);
             for (const auto& [key, value] : data) {
@@ -289,16 +296,14 @@ namespace StringTestsDouble {
                 cuckoo_table.insert(key, value);
             }
 
-            // Генерация ключей для поиска
             vector<string> search_keys;
             for (size_t i = 0; i < N / 2; ++i) {
-                search_keys.push_back(data[i].first); // Существующие ключи
+                search_keys.push_back(data[i].first); 
             }
             for (size_t i = 0; i < N / 2; ++i) {
-                search_keys.push_back(generate_random_string(10)); // Несуществующие ключи
+                search_keys.push_back(generate_random_string(10));
             }
 
-            // DoubleHashTable
             auto start = high_resolution_clock::now();
             for (const auto& key : search_keys) {
                 double_table.search(key);
@@ -307,7 +312,6 @@ namespace StringTestsDouble {
             file << "DoubleHashTable," << hash_name1 << "," << hash_name2 << ",Search," << N << ","
                 << fixed << setprecision(3) << duration<double, milli>(end - start).count() << "\n";
 
-            // CuckooHashTable
             start = high_resolution_clock::now();
             for (const auto& key : search_keys) {
                 cuckoo_table.search(key);
@@ -318,12 +322,10 @@ namespace StringTestsDouble {
         }
     }
 
-    // Тестирование удаления
     void test_erase_double_string(ofstream& file, vector<size_t> sizes, size_t(*hash_func1)(string), size_t(*hash_func2)(string), const string& hash_name1, const string& hash_name2) {
         for (size_t N : sizes) {
             auto data = generate_random_data(N);
 
-            // Создание таблиц и вставка данных
             HashTableDouble<string, int> double_table(N, hash_func1, hash_func2);
             HashTableCuckoo<string, int> cuckoo_table(N, hash_func1, hash_func2);
             for (const auto& [key, value] : data) {
@@ -331,7 +333,6 @@ namespace StringTestsDouble {
                 cuckoo_table.insert(key, value);
             }
 
-            // DoubleHashTable
             auto start = high_resolution_clock::now();
             for (const auto& [key, value] : data) {
                 double_table.erase(key);
@@ -340,7 +341,6 @@ namespace StringTestsDouble {
             file << "DoubleHashTable," << hash_name1 << "," << hash_name2 << ",Erase," << N << ","
                 << fixed << setprecision(3) << duration<double, milli>(end - start).count() << "\n";
 
-            // CuckooHashTable
             start = high_resolution_clock::now();
             for (const auto& [key, value] : data) {
                 cuckoo_table.erase(key);
