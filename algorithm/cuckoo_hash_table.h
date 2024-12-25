@@ -1,11 +1,13 @@
 #pragma once
-#include <stdio.h>
+#include <iostream>
 #include <vector>
 #include "..\algorithm\hash_functions.h"
 
 using namespace std;
 
 namespace CuckooHashTable {
+
+    const int MAX_DEPTH = 500; // Максимальная глубина переселений
 
     template <typename K, typename T>
     class HashTableCuckoo {
@@ -48,7 +50,8 @@ namespace CuckooHashTable {
 
     template <typename K, typename T>
     void HashTableCuckoo<K, T>::insert_cuckoo(const K& key, const T& value, int table_id, int depth) {
-        if (depth > _size1 + _size2) {
+        if (depth >= MAX_DEPTH) {
+            cerr << "Exceeded maximum depth of relocations for key: " << key << ". Rehashing required.\n";
             rehash();
             insert(key, value);
             return;
@@ -57,39 +60,47 @@ namespace CuckooHashTable {
         size_t index;
         if (table_id == 1) {
             index = hash_function_1(key) % _size1;
+
             if (_keys1[index] == key) {
                 _values1[index] = value;
                 return;
             }
+
             if (_keys1[index] == K()) {
                 _count1++;
+                _keys1[index] = key;
+                _values1[index] = value;
+                return;
             }
+
             K evicted_key = _keys1[index];
             T evicted_value = _values1[index];
             _keys1[index] = key;
             _values1[index] = value;
 
-            if (evicted_key != K()) {
-                insert_cuckoo(evicted_key, evicted_value, 2, depth + 1);
-            }
+            insert_cuckoo(evicted_key, evicted_value, 2, depth + 1);
         }
         else {
             index = hash_function_2(key) % _size2;
+
             if (_keys2[index] == key) {
                 _values2[index] = value;
                 return;
             }
+
             if (_keys2[index] == K()) {
                 _count2++;
+                _keys2[index] = key;
+                _values2[index] = value;
+                return;
             }
+
             K evicted_key = _keys2[index];
             T evicted_value = _values2[index];
             _keys2[index] = key;
             _values2[index] = value;
 
-            if (evicted_key != K()) {
-                insert_cuckoo(evicted_key, evicted_value, 1, depth + 1);
-            }
+            insert_cuckoo(evicted_key, evicted_value, 1, depth + 1);
         }
     }
 

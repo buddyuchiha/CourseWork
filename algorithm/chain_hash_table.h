@@ -368,6 +368,7 @@ namespace TreeHashTable {
         }
 
         AVLNode<K, T>* balance(AVLNode<K, T>* node) {
+            if (!node) return nullptr;
             int balance = balance_factor(node);
 
             if (balance > 1 && balance_factor(node->left) >= 0) {
