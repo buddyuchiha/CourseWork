@@ -29,13 +29,13 @@ int main() {
     ofstream string_load_results_file("C:\\Users\\buddy\\OneDrive\\Рабочий стол\\курсовая\\results\\test_string_load_results.csv");
     ofstream double_string_load_results_file("C:\\Users\\buddy\\OneDrive\\Рабочий стол\\курсовая\\results\\test_double_string_load_results.csv");
     // Запись заголовков в CSV
-    int_results_file << "Table,HashFunction1,HashFunction2,Operation,DataSize,Time(ms)\n";
+    int_results_file << "Table,HashFunction,Operation,DataSize,Time(ms)\n";
     double_results_file << "Table,HashFunction1,HashFunction2,Operation,DataSize,Time(ms)\n";
-    string_results_file << "Table,HashFunction1,HashFunction2,Operation,DataSize,Time(ms)\n";
+    string_results_file << "Table,HashFunction,Operation,DataSize,Time(ms)\n";
     double_string_results_file << "Table,HashFunction1,HashFunction2,Operation,DataSize,Time(ms)\n";
-    int_load_results_file << "Table,HashFunction1,HashFunction2,DataSize,LoadFactor\n";
+    int_load_results_file << "Table,HashFunction,DataSize,LoadFactor\n";
     double_load_results_file << "Table,HashFunction1,HashFunction2,DataSize,LoadFactor\n";
-    string_load_results_file << "Table,HashFunction1,HashFunction2,DataSize,LoadFactor\n";
+    string_load_results_file << "Table,HashFunction,DataSize,LoadFactor\n";
     double_string_load_results_file << "Table,HashFunction1,HashFunction2,DataSize,LoadFactor\n";
 
     // Тесты с одной хэш-функцией для чисел

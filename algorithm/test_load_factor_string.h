@@ -55,7 +55,7 @@ namespace StringLoadTests {
                 linear_table.insert(key, value);
             }
             double linear_load_factor = (double)linear_table.get_count() / (double)linear_table.get_size();
-            file << "LinearHashTable," << hash_name << ",LoadFactor," << N << ","
+            file << "LinearHashTable," << hash_name << "," << N << ","
                 << fixed << setprecision(3) << linear_load_factor << "\n";
 
             // HashTableList
@@ -64,7 +64,7 @@ namespace StringLoadTests {
                 list_table.insert(key, value);
             }
             double list_load_factor = (double)list_table.get_count() / (double)list_table.get_size();
-            file << "HashTableList," << hash_name << ",LoadFactor," << N << ","
+            file << "HashTableList," << hash_name << "," << N << ","
                 << fixed << setprecision(3) << list_load_factor << "\n";
 
             // HashTableTree
@@ -73,7 +73,7 @@ namespace StringLoadTests {
                 tree_table.insert(key, value);
             }
             double tree_load_factor = (double)tree_table.get_count() / (double)tree_table.get_size();
-            file << "HashTableTree," << hash_name << ",LoadFactor," << N << ","
+            file << "HashTableTree," << hash_name << "," << N << ","
                 << fixed << setprecision(3) << tree_load_factor << "\n";
         }
     }
@@ -96,7 +96,7 @@ namespace StringLoadTests {
                 cuckoo_table.insert(key, value);
             }
             double cuckoo_load_factor = (double)cuckoo_table.get_count() / (double)(cuckoo_table.get_size() * 2);
-            file << "CuckooHashTable," << hash_name1 << "+" << hash_name2 << ",LoadFactor," << N << ","
+            file << "CuckooHashTable," << hash_name1 << "," << hash_name2 << "," << N << ","
                 << fixed << setprecision(3) << cuckoo_load_factor << "\n";
 
             // DoubleHashTable
@@ -104,7 +104,9 @@ namespace StringLoadTests {
             for (const auto& [key, value] : data) {
                 double_table.insert(key, value);
             }
-
+            double double_load_factor = (double)double_table.get_count() / (double)(double_table.get_size() * 2);
+            file << "DoubleHashTable," << hash_name1 << "," << hash_name2 << "," << N << ","
+                << fixed << setprecision(3) << double_load_factor << "\n";
         }
     }
 }
