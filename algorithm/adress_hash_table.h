@@ -119,16 +119,7 @@ namespace LinearHashTable {
 
     template <typename K, typename T>
     size_t HashTableLinear<K, T>::get_count() {
-        size_t filled_slots = 0;
-
-        // Проходим по всем слотам
-        for (size_t i = 0; i < _size; i++) {
-            if (_data[i]._filled) {
-                filled_slots++;
-            }
-        }
-
-        return filled_slots;
+        return _count;
     }
 
     template <typename K, typename T>
@@ -298,16 +289,7 @@ namespace DoubleHashTable {
 
     template <typename K, typename T>
     size_t HashTableDouble<K, T>::get_count() {
-        size_t filled_slots = 0;
-
-        // Проходим по всем слотам
-        for (size_t i = 0; i < _size; i++) {
-            if (_data[i]._filled) {
-                filled_slots++;
-            }
-        }
-
-        return filled_slots;
+        return _count;
     }
 
 

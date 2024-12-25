@@ -639,13 +639,7 @@ namespace TreeHashTable {
 
     template<typename K, typename T>
     int HashTableTree<K, T>::get_count() {
-        int filled_buckets = 0;
-        for (const auto& node : _data) {
-            if (node != nullptr) { 
-                filled_buckets++;
-            }
-        }
-        return filled_buckets;
+        return _count;
     }
 
 

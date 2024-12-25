@@ -84,7 +84,7 @@ namespace LoadTests {
             for (const auto& [key, value] : data) {
                 cuckoo_table.insert(key, value);
             }
-            double cuckoo_load_factor = (double)cuckoo_table.get_count() / (double)(cuckoo_table.get_size() * 2);
+            double cuckoo_load_factor = (double)cuckoo_table.get_count() / (double)cuckoo_table.get_size();
             file << "CuckooHashTable," << hash_name1 << "," << hash_name2 << "," << N << ","
                 << fixed << setprecision(3) << cuckoo_load_factor << "\n";
 
