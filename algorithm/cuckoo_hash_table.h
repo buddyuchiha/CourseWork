@@ -197,10 +197,10 @@ namespace CuckooHashTable {
     template <typename K, typename T>
     void HashTableCuckoo<K, T>::rehash() {
         size_t new_size = _size1 * 2;
-        vector<K> old_keys1 = std::move(_keys1);
-        vector<T> old_values1 = std::move(_values1);
-        vector<K> old_keys2 = std::move(_keys2);
-        vector<T> old_values2 = std::move(_values2);
+        vector<K> old_keys1 = move(_keys1);
+        vector<T> old_values1 = move(_values1);
+        vector<K> old_keys2 = move(_keys2);
+        vector<T> old_values2 = move(_values2);
 
         _keys1.resize(new_size, K());
         _values1.resize(new_size, T());

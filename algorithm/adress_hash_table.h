@@ -25,11 +25,10 @@ namespace LinearHashTable {
         size_t _count;
         size_t(*hash_function)(K);
 
-        void rehash();
 
     public:
         HashTableLinear(size_t size, size_t(*hash_func)(K) = base_hash_function<K>);
-
+        void rehash();
         void insert(K key, T value);
         void insert_or_assign(K key, T value);
         bool contains(K key);
